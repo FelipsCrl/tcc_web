@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Doação</title>
+    <!-- CSS files -->
+    <link href="./dist/css/tabler.min.css?1692870487" rel="stylesheet" />
+    <link href="./dist/css/tabler-flags.min.css?1692870487" rel="stylesheet" />
+    <link href="./dist/css/tabler-payments.min.css?1692870487" rel="stylesheet" />
+    <link href="./dist/css/tabler-vendors.min.css?1692870487" rel="stylesheet" />
+    <link href="./dist/css/demo.min.css?1692870487" rel="stylesheet" />
+    <style>
+        @import url('https://rsms.me/inter/inter.css');
+         :root {
+            --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        }
+        
+        body {
+            font-feature-settings: "cv03", "cv04", "cv11";
+        }
+        
+        .navbar-brand-image {
+            height: 3rem;
+            width: auto;
+        }
+        
+        .nav-link.active .icon {
+            stroke: white;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="./dist/js/demo-theme.min.js?1692870487"></script>
+    <div class="page">
+        <header class="navbar navbar-expand-md navbar-overlap d-print-none" data-bs-theme="dark">
+            <div class="container-xl">
+                <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <h1 class="navbar-brand navbar-brand-image navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+                    <a href="">
+                        <img src="dist/img/logo/logo7.svg" width="110" height="32" alt="Mãos Solidárias" class="navbar-brand-image ">
+                    </a>
+                </h1>
+                <div class="navbar-nav flex-row order-md-last">
+                    <div class="d-none d-md-flex d-md-flex me-3">
+                        <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" data-bs-toggle="tooltip" data-bs-placement="bottom" aria-label="Enable dark mode" data-bs-original-title="Ativar modo escuro">
+                            <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path></svg>
+                        </a>
+                        <a href="?theme=light" class="nav-link px-0 hide-theme-light" data-bs-toggle="tooltip" data-bs-placement="bottom" aria-label="Enable light mode" data-bs-original-title="Ativar modo claro">
+                            <!-- Download SVG icon from http://tabler-icons.io/i/sun -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path></svg>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="perfil.html" class="nav-link d-flex lh-1 text-reset p-0" aria-label="Open user menu">
+                            <span class="avatar avatar-sm" style="background-image: url(dist/img/logo/mao_logo1.png)"></span>
+                            <div class="d-none d-xl-block ps-2">
+                                <div>Associação Mãos Solidárias</div>
+                                <div class="mt-1 small text-secondary">Instituição</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="navbar-collapse collapse show" id="navbar-menu">
+                    <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="home.html">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l-2 0l9 -9l9 9l-2 0"></path><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path></svg>
+                                    </span>
+                                    <span class="nav-link-title">
+                                        Home
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="doacao.html">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-heart-handshake"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /><path d="M12 6l-3.293 3.293a1 1 0 0 0 0 1.414l.543 .543c.69 .69 1.81 .69 2.5 0l1 -1a3.182 3.182 0 0 1 4.5 0l2.25 2.25" /><path d="M12.5 15.5l2 2" /><path d="M15 13l2 2" /></svg>
+                                    </span>
+                                    <span class="nav-link-title">
+                                        Doação
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="voluntario.html">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                    </span>
+                                    <span class="nav-link-title">
+                                        Voluntário
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="evento.html">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M16 3l0 4" /><path d="M8 3l0 4" /><path d="M4 11l16 0" /><path d="M8 15h2v2h-2z" /></svg>
+                                    </span>
+                                    <span class="nav-link-title">
+                                        Evento
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="solicitacao.html">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-progress-help"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 16v.01" /><path d="M12 13a2 2 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" /><path d="M10 20.777a8.942 8.942 0 0 1 -2.48 -.969" /><path d="M14 3.223a9.003 9.003 0 0 1 0 17.554" /><path d="M4.579 17.093a8.961 8.961 0 0 1 -1.227 -2.592" /><path d="M3.124 10.5c.16 -.95 .468 -1.85 .9 -2.675l.169 -.305" /><path d="M6.907 4.579a8.954 8.954 0 0 1 3.093 -1.356" /></svg>
+                                    </span>
+                                    <span class="nav-link-title">
+                                        Solicitação
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none text-white">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <!-- Page pre-title -->
+                            <div class="page-pretitle">
+                                Setor
+                            </div>
+                            <h2 class="page-title">
+                                Doações
+                            </h2>
+                        </div>
+                        <!-- Page title actions -->
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="btn-list">
+                                <span class="d-none"> <!--d-sm-inline-->
+                                    <a href="#" class="btn btn-dark">
+                                        New view
+                                    </a>
+                                </span>
+                                <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
+                                    <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>                                    Criar doação
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <div class="row row-deck row-cards">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Doações Ativas</div>
+                                    </div>
+                                    <div class="h1 mb-3">75%</div>
+                                    <div class="d-flex mb-2">
+                                        <div>Em relação ao mês</div>
+                                        <div class="ms-auto">
+                                            <span class="text-green d-inline-flex align-items-center lh-1">
+                                                7% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l6 -6l4 4l8 -8" /><path d="M14 7l7 0l0 7" /></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-primary" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="75% Complete">
+                                            <span class="visually-hidden">XX% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Quantidade de Doações mensais</div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-0 me-2">$4,300</div>
+                                        <div class="me-auto">
+                                            <span class="text-green d-inline-flex align-items-center lh-1">
+                                                8% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l6 -6l4 4l8 -8" /><path d="M14 7l7 0l0 7" /></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="chart-revenue-bg" class="chart-sm"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Metas Concluidas</div>
+                                        <div class="ms-auto lh-1">
+                                            <div class="dropdown">
+                                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Últimos 7 dias</a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item active" href="#">Últimos 7 dias</a>
+                                                    <a class="dropdown-item" href="#">Últimos 30 dias</a>
+                                                    <a class="dropdown-item" href="#">Últimos 3 meses</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-3 me-2">6,782</div>
+                                        <div class="me-auto">
+                                            <span class="text-yellow d-inline-flex align-items-center lh-1">
+                                                0% <!-- Download SVG icon from http://tabler-icons.io/i/minus -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div id="chart-new-clients" class="chart-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Quantidade de Doações hoje</div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-3 me-2">2,986</div>
+                                        <div class="me-auto">
+                                            <span class="text-green d-inline-flex align-items-center lh-1">
+                                                4% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up --><svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17l6 -6l4 4l8 -8" /><path d="M14 7l7 0l0 7" /></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div id="chart-active-users" class="chart-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 class="card-title">Arrecadações</h3>
+                                    <div id="chart-mentions" class="chart-lg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 class="card-title">Quantidade e Tipos de Doações</h3>
+                                    <div id="chart-donut" class="chart-lg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Todas as doações</h3>
+                                </div>
+                                <div class="card-body border-bottom py-3">
+                                    <div class="d-flex">
+                                        <div class="text-secondary">
+                                            Mostrar
+                                            <div class="mx-2 d-inline-block">
+                                                <input type="text" class="form-control form-control-sm" value="" size="3" aria-label="Invoices count">
+                                            </div>
+                                            resultado(s)
+                                        </div>
+                                        <div class="ms-auto text-secondary">
+                                            Busca:
+                                            <div class="ms-2 d-inline-block">
+                                                <input type="text" class="form-control form-control-sm" aria-label="Search invoice">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table card-table table-vcenter text-nowrap datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="w-1">No.
+                                                    <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-thick" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 15l6 -6l6 6" /></svg>
+                                                </th>
+                                                <th>Categoria</th>
+                                                <th>Doador</th>
+                                                <th>Quantidade</th>
+                                                <th>Meio de Recebimento</th>
+                                                <!--Coleta ou Levar até a instituição-->
+                                                <th>Status da Solicitação</th>
+                                                <th>Meio de doação</th>
+                                                <!--Pelo card ou pelo perfil-->
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="text-secondary">001401</span></td>
+                                                <td><a href="invoice.html" class="text-reset" tabindex="-1">Design Works</a></td>
+                                                <td>
+                                                    <span class="flag flag-xs flag-country-us me-2"></span> Carlson Limited
+                                                </td>
+                                                <td>
+                                                    87956621
+                                                </td>
+                                                <td>
+                                                    15 Dec 2017
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success me-1"></span> Paid
+                                                </td>
+                                                <td>$887</td>
+                                                <td class="text-end">
+                                                    <span class="dropdown">
+                                                        <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Ações</button>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" href="#">
+                                                                Action
+                                                            </a>
+                                                            <a class="dropdown-item" href="#">
+                                                                Another action
+                                                            </a>
+                                                        </div>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="text-secondary">001404</span></td>
+                                                <td><a href="invoice.html" class="text-reset" tabindex="-1">Landing Page</a></td>
+                                                <td>
+                                                    <span class="flag flag-xs flag-country-br me-2"></span> Salesforce
+                                                </td>
+                                                <td>
+                                                    87953421
+                                                </td>
+                                                <td>
+                                                    2 Sep 2017
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary me-1"></span> Due in 2 Weeks
+                                                </td>
+                                                <td>$1500</td>
+                                                <td class="text-end">
+                                                    <span class="dropdown">
+                                                        <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Ações</button>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" href="#">
+                                                                Action
+                                                            </a>
+                                                            <a class="dropdown-item" href="#">
+                                                                Another action
+                                                            </a>
+                                                        </div>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer d-flex align-items-center">
+                                    <ul class="pagination m-0 ms-auto">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/chevron-left -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg>                                                anterior
+                                            </a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">
+                                                próximo <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova doação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" name="example-text-input" placeholder="Nome do card de doação">
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Categoria das Doações</h5>
+                                    <div class="mb-3">
+                                        <label class="form-label">Roupa</label>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input mt-0" type="checkbox" value="" id="flexCheckRoupa">
+                                            </div>
+                                            <input type="text" class="form-control" id="metaRoupa" name="meta-roupa" placeholder="Meta para Roupa">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Alimento</label>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input mt-0" type="checkbox" value="" id="flexCheckAlimento">
+                                            </div>
+                                            <input type="text" class="form-control" id="metaAlimento" name="meta-alimento" placeholder="Meta para Alimento">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Brinquedo</label>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input mt-0" type="checkbox" value="" id="flexCheckBrinquedo">
+                                            </div>
+                                            <input type="text" class="form-control" id="metaBrinquedo" name="meta-brinquedo" placeholder="Meta para Brinquedo">
+                                        </div>
+                                    </div>
+                                    <!-- Adicione mais categorias conforme necessário -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label class="form-label">Coleta</label>
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                    <label class="form-check-label" for="flexCheckDefault">
+                                      Será possível coletar as doações
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label class="form-label">Data e hora de expiração</label>
+                                <input type="datetime-local" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div>
+                                <label class="form-label">Observação</label>
+                                <textarea class="form-control" placeholder="Detalhe as informações sobre as doações" rows="3" maxlength="150"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+                    <a href="#" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 5l0 14" />
+                            <path d="M5 12l14 0" />
+                        </svg> Criar doação
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Libs JS -->
+    <script src="./dist/libs/apexcharts/dist/apexcharts.min.js?1692870487" defer></script>
+    <!-- Tabler Core -->
+    <script src="./dist/js/tabler.min.js?1692870487" defer></script>
+    <script src="./dist/js/demo.min.js?1692870487" defer></script>
+    <script>
+        // Obtém a URL da página atual
+        const currentUrl = window.location.pathname;
+
+        // Seleciona todos os itens de menu
+        const menuItems = document.querySelectorAll('.navbar-nav .nav-link');
+
+        // Verifica cada item do menu e adiciona a classe "active" ao correspondente
+        menuItems.forEach(item => {
+            const href = item.getAttribute('href');
+            if (currentUrl.includes(href)) {
+                item.classList.add('active');
+            }
+        });
+    </script>
+    <script>
+        // @formatter:off
+        document.addEventListener("DOMContentLoaded", function() {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-revenue-bg'), {
+                chart: {
+                    type: "area",
+                    fontFamily: 'inherit',
+                    height: 40.0,
+                    sparkline: {
+                        enabled: true
+                    },
+                    animations: {
+                        enabled: true
+                    },
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                fill: {
+                    opacity: .16,
+                    type: 'solid'
+                },
+                stroke: {
+                    width: 2,
+                    lineCap: "round",
+                    curve: "smooth",
+                },
+                series: [{
+                    name: "Profits",
+                    data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46, 39, 62, 51, 35, 41, 67]
+                }],
+                tooltip: {
+                    theme: 'dark'
+                },
+                grid: {
+                    strokeDashArray: 4,
+                },
+                xaxis: {
+                    labels: {
+                        padding: 0,
+                    },
+                    tooltip: {
+                        enabled: false
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    type: 'datetime',
+                },
+                yaxis: {
+                    labels: {
+                        padding: 4
+                    },
+                },
+                labels: [
+                    '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
+                ],
+                colors: [tabler.getColor("primary")],
+                legend: {
+                    show: false,
+                },
+            })).render();
+        });
+        // @formatter:on
+    </script>
+    <script>
+        // @formatter:off
+        document.addEventListener("DOMContentLoaded", function() {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-new-clients'), {
+                chart: {
+                    type: "line",
+                    fontFamily: 'inherit',
+                    height: 40.0,
+                    sparkline: {
+                        enabled: true
+                    },
+                    animations: {
+                        enabled: true
+                    },
+                },
+                fill: {
+                    opacity: 1,
+                },
+                stroke: {
+                    width: [2, 1],
+                    dashArray: [0, 3],
+                    lineCap: "round",
+                    curve: "smooth",
+                },
+                series: [{
+                    name: "May",
+                    data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 4, 46, 39, 62, 51, 35, 41, 67]
+                }, {
+                    name: "April",
+                    data: [93, 54, 51, 24, 35, 35, 31, 67, 19, 43, 28, 36, 62, 61, 27, 39, 35, 41, 27, 35, 51, 46, 62, 37, 44, 53, 41, 65, 39, 37]
+                }],
+                tooltip: {
+                    theme: 'dark'
+                },
+                grid: {
+                    strokeDashArray: 4,
+                },
+                xaxis: {
+                    labels: {
+                        padding: 0,
+                    },
+                    tooltip: {
+                        enabled: false
+                    },
+                    type: 'datetime',
+                },
+                yaxis: {
+                    labels: {
+                        padding: 4
+                    },
+                },
+                labels: [
+                    '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
+                ],
+                colors: [tabler.getColor("primary"), tabler.getColor("gray-600")],
+                legend: {
+                    show: false,
+                },
+            })).render();
+        });
+        // @formatter:on
+    </script>
+    <script>
+        // @formatter:off
+        document.addEventListener("DOMContentLoaded", function() {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-active-users'), {
+                chart: {
+                    type: "bar",
+                    fontFamily: 'inherit',
+                    height: 40.0,
+                    sparkline: {
+                        enabled: true
+                    },
+                    animations: {
+                        enabled: true
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '50%',
+                    }
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                fill: {
+                    opacity: 1,
+                },
+                series: [{
+                    name: "Profits",
+                    data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46, 39, 62, 51, 35, 41, 67]
+                }],
+                tooltip: {
+                    theme: 'dark'
+                },
+                grid: {
+                    strokeDashArray: 4,
+                },
+                xaxis: {
+                    labels: {
+                        padding: 0,
+                    },
+                    tooltip: {
+                        enabled: false
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    type: 'datetime',
+                },
+                yaxis: {
+                    labels: {
+                        padding: 4
+                    },
+                },
+                labels: [
+                    '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
+                ],
+                colors: [tabler.getColor("primary")],
+                legend: {
+                    show: false,
+                },
+            })).render();
+        });
+        // @formatter:on
+    </script>
+    <script>
+        // @formatter:off
+        document.addEventListener("DOMContentLoaded", function() {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-mentions'), {
+                chart: {
+                    type: "bar",
+                    fontFamily: 'inherit',
+                    height: 240,
+                    parentHeightOffset: 0,
+                    toolbar: {
+                        show: false,
+                    },
+                    animations: {
+                        enabled: true,
+                        easing: '   ',
+                        speed: 800,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 150
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350
+                        }
+                    },
+                    stacked: true,
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '50%',
+                    }
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                fill: {
+                    opacity: 1,
+                },
+                series: [{
+                    name: "Web",
+                    data: [1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 12, 5, 8, 22, 6, 8, 6, 4, 1, 8, 24, 29, 51, 40, 47, 23, 26, 50, 26, 41, 22, 46, 47, 81, 46, 6]
+                }, {
+                    name: "Social",
+                    data: [2, 5, 4, 3, 3, 1, 4, 7, 5, 1, 2, 5, 3, 2, 6, 7, 7, 1, 5, 5, 2, 12, 4, 6, 18, 3, 5, 2, 13, 15, 20, 47, 18, 15, 11, 10, 0]
+                }, {
+                    name: "Other",
+                    data: [2, 9, 1, 7, 8, 3, 6, 5, 5, 4, 6, 4, 1, 9, 3, 6, 7, 5, 2, 8, 4, 9, 1, 2, 6, 7, 5, 1, 8, 3, 2, 3, 4, 9, 7, 1, 6]
+                }],
+                tooltip: {
+                    theme: 'dark'
+                },
+                grid: {
+                    padding: {
+                        top: -20,
+                        right: 0,
+                        left: -4,
+                        bottom: -4
+                    },
+                    strokeDashArray: 4,
+                    xaxis: {
+                        lines: {
+                            show: true
+                        }
+                    },
+                },
+                xaxis: {
+                    labels: {
+                        padding: 0,
+                    },
+                    tooltip: {
+                        enabled: false
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    type: 'datetime',
+                },
+                yaxis: {
+                    labels: {
+                        padding: 4
+                    },
+                },
+                labels: [
+                    '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19', '2020-07-20', '2020-07-21', '2020-07-22', '2020-07-23', '2020-07-24', '2020-07-25', '2020-07-26'
+                ],
+                colors: [tabler.getColor("primary"), tabler.getColor("primary", 0.8), tabler.getColor("green", 0.8)],
+                legend: {
+                    show: false,
+                },
+            })).render();
+        });
+        // @formatter:on
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-donut'), {
+                series: [44, 55, 13, 33],
+                labels: ["Alimento", "Roupa", "Dinheiro", "Fralda"],
+                chart: {
+                    width: 380,
+                    type: 'donut',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            show: false
+                        }
+                    }
+                }],
+                colors: [tabler.getColor("primary"), tabler.getColor("primary", 0.9), tabler.getColor("primary", 0.7), tabler.getColor("primary", 0.5)],
+                legend: {
+                    position: 'right',
+                    offsetY: 0,
+                    height: 230,
+                    customLegendItems: ["Alimento", "Roupa", "Dinheiro", "Fralda"]
+                },
+                tooltip: {
+                    fillSeriesColor: false
+                },
+            })).render();
+        });
+    </script>
+
+</body>
+
+</html>
