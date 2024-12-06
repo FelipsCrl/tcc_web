@@ -24,7 +24,7 @@ class HabilidadeSeeder extends Seeder
             'Música',
             'Dança',
             'Administração',
-            'Bem-estar Animal',
+            'Animais',
             'Marketing',
             'TI',
             'Pesquisa',

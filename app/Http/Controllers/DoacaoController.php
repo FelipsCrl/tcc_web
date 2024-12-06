@@ -209,8 +209,11 @@ class DoacaoController extends Controller
             'data_hora_limite.after' => 'A data e hora limite devem ser no futuro.',
             'categoria_nome.required' => 'O nome da categoria é obrigatório.',
             'categoria_nome.*.required' => 'Cada categoria deve ter um nome válido.',
+            'categoria_nome.*.string' => 'Cada categoria deve ser um nome válido.',
             'categoria_meta.required' => 'A meta da categoria é obrigatória.',
             'categoria_meta.*.required' => 'Cada meta deve ser um valor numérico válido.',
+            'categoria_meta.*.numeric' => 'Cada meta deve ser um valor numérico.',
+            'categoria_meta.*.min' => 'Cada meta deve ter no mínimo 1.',
             'observacao.required' => 'O campo observação é obrigatório para melhor entendimento sobre a doação.',
         ];
 
@@ -222,8 +225,8 @@ class DoacaoController extends Controller
             'categoria_nome' => 'required|array|min:1',
             'categoria_nome.*' => 'required|string|max:45', // Ajuste conforme o limite da tabela categoria_doacao
             'categoria_meta' => 'required|array|min:1',
-            'categoria_meta.*' => 'required|numeric|min:0',
-            'coleta' => 'required|numeric' // Verifique se é 0 ou 1 (booleano)
+            'categoria_meta.*' => 'required|numeric|min:1',
+            'coleta' => 'numeric' // Verifique se é 0 ou 1 (booleano)
         ], $messages);
 
         $user = Auth::user();
@@ -249,7 +252,7 @@ class DoacaoController extends Controller
                 $metaCategoria = $categoriasMetas[$index];
 
                 // Verificar se a categoria já existe
-                $categoria = CategoriaDoacao::firstOrCreate([
+                $categoria = CategoriaDoacao::create([
                     'descricao_categoria' => $nomeCategoria
                 ]);
 
@@ -279,6 +282,7 @@ class DoacaoController extends Controller
             'categoria_nome.*.required' => 'Cada categoria deve ter um nome válido.',
             'categoria_meta.required' => 'A meta da categoria é obrigatória.',
             'categoria_meta.*.required' => 'Cada meta deve ser um valor numérico válido.',
+            'categoria_meta.*.min' => 'Cada meta deve ter no mínimo 1.',
             'observacao.required' => 'O campo observação é obrigatório para melhor entendimento sobre a doação.',
         ];
 
@@ -290,8 +294,8 @@ class DoacaoController extends Controller
             'categoria_nome' => 'required|array|min:1',
             'categoria_nome.*' => 'required|string|max:45', // Ajuste conforme o limite da tabela categoria_doacao
             'categoria_meta' => 'required|array|min:1',
-            'categoria_meta.*' => 'required|numeric|min:0',
-            'coleta' => 'required|numeric' // Verifique se é 0 ou 1 (booleano)
+            'categoria_meta.*' => 'required|numeric|min:1',
+            'coleta' => 'numeric' // Verifique se é 0 ou 1 (booleano)
         ], $messages);
 
         // Atualizar a doação
@@ -308,8 +312,6 @@ class DoacaoController extends Controller
 
         // Sincronizar as categorias da doação
         if ($categoriasNomes && $categoriasMetas) {
-            $syncData = [];
-
             foreach ($categoriasNomes as $index => $nomeCategoria) {
                 $metaCategoria = $categoriasMetas[$index];
 
@@ -318,22 +320,17 @@ class DoacaoController extends Controller
                     'descricao_categoria' => $nomeCategoria
                 ]);
 
-                // Preparar os dados para a tabela intermediária
-                $syncData[$categoria->id_categoria] = [
+                // Atualizar ou adicionar a relação sem remover os dados existentes
+                $doacao->categorias()->updateExistingPivot($categoria->id_categoria, [
                     'meta_doacao_categoria' => $metaCategoria,
-                    'quantidade_doacao_categoria' => 0, // Manter como 0 por padrão
-                ];
+                ], false);
             }
-
-            // Sincronizar as categorias da doação na tabela intermediária
-            $doacao->categorias()->sync($syncData);
         }
 
         // Redirecionar com mensagem de sucesso
         return redirect()->route('doacao.index')
             ->with('success', 'Card de doação atualizado com sucesso!!');
     }
-
 
     public function destroy(Doacao $doacao)
     {
@@ -363,22 +360,15 @@ class DoacaoController extends Controller
             ])
             ->get()
             ->filter(function ($doacao) {
-                // Verifica se a data de limite da doação não passou
                 $dataLimitePassada = now()->greaterThan($doacao->data_hora_limite_doacao);
-
-                // Verifica se todas as metas das categorias não foram cumpridas
                 $metasCumpridas = $doacao->categorias->every(function ($categoria) {
                     return $categoria->pivot->quantidade_doacao_categoria >= $categoria->pivot->meta_doacao_categoria;
                 });
 
-                // Exclui a doação se passou do limite ou se todas as metas foram cumpridas
                 return !$dataLimitePassada && !$metasCumpridas;
             })
             ->map(function ($doacao) {
-                // Decodificando o JSON de funcionamento_instituicao da instituição
                 $funcionamento = json_decode($doacao->instituicao->funcionamento_instituicao, true);
-
-                // Agrupando os dias com os mesmos horários
                 $horariosAgrupados = [];
                 foreach ($funcionamento as $dia => $horario) {
                     if ($horario['funciona']) {
@@ -387,7 +377,6 @@ class DoacaoController extends Controller
                     }
                 }
 
-                // Formatação da string de funcionamento com agrupamento de dias consecutivos
                 $diasFuncionamento = '';
                 foreach ($horariosAgrupados as $horario => $dias) {
                     $diasAgrupados = [];
@@ -445,7 +434,8 @@ class DoacaoController extends Controller
                         ];
                     }),
                 ];
-            });
+            })
+            ->values(); // Remove os índices numéricos.
 
         return response()->json([
             'data' => $doacoes,
@@ -453,6 +443,7 @@ class DoacaoController extends Controller
             'message' => 'Listagem solicitada com sucesso!',
         ], 200);
     }
+
 
     public function realizaDoacao(Request $request)
     {

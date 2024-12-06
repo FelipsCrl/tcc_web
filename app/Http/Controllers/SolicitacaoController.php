@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Instituicao;
+use App\Models\Voluntario;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -323,5 +324,63 @@ class SolicitacaoController extends Controller
 
         return redirect()->route('solicitacao.index')->with('success', 'Solicitação alterada com sucesso!');
     }
+
+    public function listagemSolicitacao()
+    {
+        $user = Auth::user();
+
+        // Obtém o voluntário autenticado
+        $voluntario = Voluntario::where('id_usuario', $user->id)->first();
+
+        // Solicitações de doações
+        $doacoes = DB::table('voluntario_has_doacao as vd')
+            ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
+            ->join('instituicao as i', 'd.id_instituicao', '=', 'i.id_instituicao')
+            ->join('users as u', 'i.id_usuario', '=', 'u.id')
+            ->where('d.card_doacao', 0)
+            ->where('vd.id_voluntario', $voluntario->id_voluntario)
+            ->select(
+                'u.name as nome',
+                'vd.categoria_doacao as categoria',
+                'vd.created_at as data',
+                'vd.situacao_solicitacao_doacao as situacao'
+            )
+            ->get()
+            ->map(function ($doacao) {
+                // Formata a data para dd/mm/aaaa
+                $doacao->data = Carbon::parse($doacao->data)->format('d/m/Y');
+                return $doacao;
+            });
+
+        // Solicitações de voluntariado
+        $voluntariados = DB::table('instituicao_has_voluntario as iv')
+            ->join('instituicao as i', 'iv.id_instituicao', '=', 'i.id_instituicao')
+            ->join('users as u', 'i.id_usuario', '=', 'u.id')
+            ->where('iv.id_voluntario', $voluntario->id_voluntario)
+            ->select(
+                'u.name as nome',
+                'iv.habilidade_voluntario as habilidade',
+                'iv.created_at as data',
+                'iv.situacao_solicitacao_voluntario as situacao'
+            )
+            ->get()
+            ->map(function ($voluntariado) {
+                // Formata a data para dd/mm/aaaa
+                $voluntariado->data = Carbon::parse($voluntariado->data)->format('d/m/Y');
+                return $voluntariado;
+            });
+
+        // Combina as duas coleções
+        $solicitacoes = $doacoes->merge($voluntariados);
+
+        // Retorna os dados no formato JSON
+        return response()->json([
+            'data' => $solicitacoes,
+            'status' => 'success',
+            'message' => 'Listagem solicitada com sucesso!',
+        ], 200);
+    }
+
+
 
 }

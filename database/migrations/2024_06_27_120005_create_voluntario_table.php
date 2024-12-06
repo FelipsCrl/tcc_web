@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('voluntario', function (Blueprint $table) {
             $table->id('id_voluntario');
             $table->unsignedBigInteger('id_usuario');
-            $table->unsignedBigInteger('id_contato');
-            $table->unsignedBigInteger('id_endereco');
+            $table->unsignedBigInteger('id_contato')->nullable();
+            $table->unsignedBigInteger('id_endereco')->nullable();
             $table->string('cpf_voluntario',14)->unique();
             $table->timestamps();
 

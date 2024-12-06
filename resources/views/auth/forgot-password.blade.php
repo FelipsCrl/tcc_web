@@ -7,6 +7,7 @@
     <title>
       Esqueceu Senha
     </title>
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <!-- CSS files -->
     <link href="{{asset('template/dist/css/tabler.min.css')}}" rel="stylesheet" />
     <link href="{{asset('template/dist/css/tabler-flags.min.css')}}" rel="stylesheet" />
@@ -53,6 +54,21 @@
               <label class="form-label">Email</label>
               <input type="email" id="email" class="form-control" name="email" placeholder="Email" required autofocus />
             </div>
+            @if (session('status'))
+                <div class="alert alert-success">
+                    {{ session('status') }}
+                </div>
+            @endif
+            <!-- Erros de validação -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="form-footer">
               <button type="submit" class="btn btn-primary w-100">
                 <svg

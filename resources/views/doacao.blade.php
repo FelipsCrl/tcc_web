@@ -149,14 +149,15 @@
                                     <td>
                                         <div class="btn-list flex-nowrap">
                                             <a href="#" class="btn btn-editar"
-                                               data-id="{{$doacao->id_doacao}}"
-                                               data-nome="{{$doacao->nome_doacao}}"
-                                               data-categorias="{{ implode(', ', $doacao->categorias->pluck('descricao_categoria')->toArray()) }}"
-                                               data-metas="{{ implode(', ', $doacao->categorias->pluck('pivot.meta_doacao_categoria')->toArray()) }}"
-                                               data-coleta="{{$doacao->coleta_doacao ? 'Sim' : 'Não'}}"
-                                               data-observacao="{{$doacao->observacao_doacao}}"
-                                               data-data-hora-limite="{{$doacao->data_hora_limite_doacao}}">
-                                               Editar
+                                                data-id="{{$doacao->id_doacao}}"
+                                                data-nome="{{$doacao->nome_doacao}}"
+                                                data-categorias="{{ implode(', ', $doacao->categorias->pluck('descricao_categoria')->toArray()) }}"
+                                                data-idcategorias="{{ implode(',', $doacao->categorias->pluck('id_categoria')->toArray()) }}"
+                                                data-metas="{{ implode(', ', $doacao->categorias->pluck('pivot.meta_doacao_categoria')->toArray()) }}"
+                                                data-coleta="{{$doacao->coleta_doacao ? 'Sim' : 'Não'}}"
+                                                data-observacao="{{$doacao->observacao_doacao}}"
+                                                data-data-hora-limite="{{$doacao->data_hora_limite_doacao}}">
+                                                Editar
                                             </a>
                                             <a href="#" class="btn btn-exibir"
                                                 data-bs-toggle="modal"
@@ -634,7 +635,8 @@
         newCategory.innerHTML = `
           <div class="input-group mb-2">
             <input type="text" class="form-control" name="categoria_nome[]" placeholder="Nome da Categoria">
-            <input type="number" class="form-control" name="categoria_meta[]" placeholder="Meta  obs.: se for 0 não terá meta">
+            <input type="number" class="form-control" name="categoria_meta[]" placeholder="Meta">
+            <input type="hidden" class="form-control" name="categoria_id[]">
             <button type="button" class="btn btn-icon btn-outline-danger removeCategoriaBtn">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -658,6 +660,7 @@
             const doacaoId = this.dataset.id;
             const doacaoNome = this.dataset.nome;
             const categorias = this.dataset.categorias.split(',');
+            const idCategorias = this.dataset.idcategorias.split(','); // Sem trim() aqui
             const metas = this.dataset.metas.split(',');
             const coleta = this.dataset.coleta;
             const observacao = this.dataset.observacao;
@@ -688,6 +691,7 @@
                     <div class="input-group mb-2">
                         <input type="text" class="form-control" name="categoria_nome[]" value="${categoria.trim()}" placeholder="Nome da Categoria">
                         <input type="number" class="form-control" name="categoria_meta[]" value="${metas[index].trim()}" placeholder="Meta">
+                        <input type="hidden" class="form-control" name="categoria_id[]" value="${idCategorias[index].trim()}" >
                         <button type="button" class="btn btn-icon btn-outline-danger removeCategoriaBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -707,6 +711,7 @@
             const myModal = new bootstrap.Modal(document.getElementById('modal-report'));
             myModal.show();
         });
+
     });
 </script>
 <script>
@@ -969,8 +974,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
          // Captura os valores de "Coleta com voluntário" e "Entrega na instituição"
-        var totalColeta = {{ $tiposDeRecebimento->total_coleta }};
-        var totalEntrega = {{ $tiposDeRecebimento->total_entrega }};
+        var totalColeta = {{ $tiposDeRecebimento->total_coleta ?? 0}};
+        var totalEntrega = {{ $tiposDeRecebimento->total_entrega ?? 0}};
         window.ApexCharts && (new ApexCharts(document.getElementById('chart-donut'), {
             series: [totalColeta, totalEntrega],
             labels: ["Coleta com voluntário", "Entrega na instituição"],

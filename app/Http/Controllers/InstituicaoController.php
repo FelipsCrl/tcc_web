@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\CategoriaDoacao;
 use App\Models\Contato;
+use App\Models\Doacao;
 use App\Models\Endereco;
 use App\Models\Habilidade;
 use App\Models\Instituicao;
 use App\Models\User;
-use App\Models\Usuario;
+use App\Models\Voluntario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class InstituicaoController extends Controller
 {
@@ -82,6 +84,11 @@ class InstituicaoController extends Controller
             'telefone' => 'required|string|min:15|max:15',
         ], $messages);
 
+        if (!$this->validarCnpj($request->input('cnpj'))) {
+            return redirect()->back()
+                ->withErrors(['cnpj' => 'O CNPJ informado é inválido.'])
+                ->withInput();
+        }
 
         // Criar o usuário primeiro
         $usuario = User::create([
@@ -111,11 +118,21 @@ class InstituicaoController extends Controller
         $idEndereco = $endereco->id_endereco;
 
         // Criar a instituição com o id do usuário recém-criado
-        Instituicao::create([
+        $instituicao = Instituicao::create([
             'id_usuario' => $idUsuario,  // Associando o ID do usuário criado
             'id_contato'=> $idContato,  // Associando o ID do contato criado
             'id_endereco'=> $idEndereco,  // Associando o ID do endereço criado
             'cnpj_instituicao' => $request->input('cnpj'),
+        ]);
+
+        // Criar o 'Doar Agora' da instituição, logo após o cadastro
+        Doacao::create([
+            'id_instituicao' => $instituicao->id_instituicao,
+            'observacao_doacao' => null,
+            'data_hora_limite_doacao' => null,
+            'nome_doacao' => null,
+            'coleta_doacao' => null,
+            'card_doacao' => '0'
         ]);
 
         // Redirecionamento
@@ -157,11 +174,17 @@ class InstituicaoController extends Controller
         switch ($request->input('menu')) {
             case 1:
                 $request->validate([
+                    'nome' => 'required|string|max:80',
                     'image_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                     'descricao' => 'required|string|max:200',
                 ],$messages);
 
+                if($request->imagem_perfil)
                 $usuario->updateProfilePhoto($request->file('imagem_perfil'));
+
+                $usuario->update([
+                    'name' => $request->nome
+                ]);
 
                 $instituicao->update([
                     'descricao_instituicao' => $request->input('descricao'),
@@ -258,9 +281,9 @@ class InstituicaoController extends Controller
                 if ($request->has('current_password') && $request->has('new_password')) {
                     $request->validate([
                         'current_password' => 'required',
-                        'new_password' => 'required|min:8',
+                        'new_password' => 'required|min:6',
                         'confirm_password' => 'required|same:new_password',
-                    ]);
+                    ], ['confirm_password.same'=> 'As senhas não coincidem!']);
 
                     // Verificar se a senha atual está correta
                     if (!Hash::check($request->current_password, $usuario->password)) {
@@ -309,7 +332,7 @@ class InstituicaoController extends Controller
         )
         ->with([
             'usuario:id,name,email',
-            'contato:id_contato,telefone_contato,whatsapp_contato',
+            'contato:id_contato,telefone_contato,whatsapp_contato,instagram_contato,facebook_contato,site_contato',
             'endereco',
         ])
         ->get()
@@ -351,11 +374,166 @@ class InstituicaoController extends Controller
             ];
         });
 
-    return response()->json([
-        'data' => $instituicoes,
-        'status' => 'success',
-        'message' => 'Listagem solicitada com sucesso!',
-    ], 200);
+        return response()->json([
+            'data' => $instituicoes,
+            'status' => 'success',
+            'message' => 'Listagem solicitada com sucesso!',
+        ], 200);
 
     }
+
+    public function inscreveInstituicao(Request $request)
+    {
+        $user = Auth::user();
+        $voluntario = Voluntario::where('id_usuario', $user->id)->first();
+
+        // Valida os dados recebidos
+        $validator = Validator::make($request->all(), [
+            'id_instituicao' => 'required|integer|exists:instituicao,id_instituicao',
+            'id_habilidade' => 'required|integer|exists:habilidade,id_habilidade',
+        ]);
+
+        // Retorna erros de validação, se houver
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $habilidade = Habilidade::where('id_habilidade', $request->id_habilidade)->first();
+
+        DB::table('instituicao_has_voluntario')->insert([
+            'id_instituicao' => $request->id_instituicao,
+            'id_voluntario' => $voluntario->id_voluntario,
+            'habilidade_voluntario' => $habilidade->descricao_habilidade,
+            'situacao_solicitacao_voluntario' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Inscrição registrada com sucesso!',
+        ], 200);
+    }
+
+    public function doarAgora(Request $request)
+    {
+        $user = Auth::user();
+        $voluntario = Voluntario::where('id_usuario', $user->id)->first();
+
+        // Valida os dados recebidos
+        $validator = Validator::make($request->all(), [
+            'id_instituicao' => 'required|integer|exists:instituicao,id_instituicao',
+            'categoria' => 'required|string|max:45',
+            'quantidade_doacao' => 'required|int|min:1',
+            'data_hora_coleta' => 'nullable|date|after:now',
+        ]);
+
+        // Retorna erros de validação, se houver
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $doacaoInstituicao = DB::table('doacao as d')
+                ->where('d.card_doacao', 0)
+                ->where('d.id_instituicao', $request->id_instituicao)
+                ->first();;
+
+        try {
+            // Verifica se o voluntário já fez uma doação para o mesmo id_doacao
+            $doacaoExistente = DB::table('voluntario_has_doacao as vd')
+                ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
+                ->where('vd.id_voluntario', $voluntario->id_voluntario)
+                ->where('vd.id_doacao', $doacaoInstituicao->id_doacao)
+                ->where('d.card_doacao', 0)
+                ->where('d.id_instituicao', $request->id_instituicao)
+                ->first();
+
+            if ($doacaoExistente) {
+                // Atualiza os campos se o registro já existir
+                DB::table('voluntario_has_doacao')
+                    ->where('id_voluntario', $voluntario->id_voluntario)
+                    ->where('id_doacao', $doacaoInstituicao->id_doacao)
+                    ->update([
+                        'situacao_solicitacao_doacao' => 0,
+                        'data_hora_coleta' => $request->data_hora_coleta,
+                        'categoria_doacao' => $request->categoria,
+                        'quantidade_doacao' => $request->quantidade_doacao,
+                        'updated_at' => now(),
+                    ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Doação registrada com sucesso!',
+                ], 200);
+            } else {
+                // Insere os dados se o registro não existir
+                DB::table('voluntario_has_doacao')->insert([
+                    'id_voluntario' => $voluntario->id_voluntario,
+                    'id_doacao' => $doacaoInstituicao->id_doacao,
+                    'situacao_solicitacao_doacao' => 0,
+                    'data_hora_coleta' => $request->data_hora_coleta,
+                    'categoria_doacao' => $request->categoria,
+                    'quantidade_doacao' => $request->quantidade_doacao,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Doação registrada com sucesso!',
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            // Retorna erro caso algo falhe no banco de dados
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erro ao registrar ou atualizar a doação.',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function validarCnpj($cnpj)
+    {
+        // Remove caracteres não numéricos
+        $cnpj = preg_replace('/\D/', '', $cnpj);
+
+        // Verifica se possui 14 dígitos
+        if (strlen($cnpj) != 14) {
+            return false;
+        }
+
+        // Elimina CNPJs inválidos conhecidos
+        if (in_array($cnpj, [
+            '00000000000000', '11111111111111', '22222222222222',
+            '33333333333333', '44444444444444', '55555555555555',
+            '66666666666666', '77777777777777', '88888888888888',
+            '99999999999999'
+        ])) {
+            return false;
+        }
+
+        // Validação dos dígitos verificadores
+        for ($t = 12; $t < 14; $t++) {
+            $d = 0;
+            $c = 0;
+            for ($p = $t - 7, $i = 0; $i < $t; $i++, $p--) {
+                $d += $cnpj[$i] * ($p > 1 ? $p : 9);
+                $c++;
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($cnpj[$c] != $d) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

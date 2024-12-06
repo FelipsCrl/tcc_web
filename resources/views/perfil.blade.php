@@ -87,7 +87,7 @@
                             <div class="row g-3">
                                 <div class="col-md">
                                     <div class="form-label">Nome</div>
-                                    <input type="text" class="form-control" value="{{ $instituicao->usuario->name ?? '' }}" readonly>
+                                    <input type="text" class="form-control" name="nome" value="{{ $instituicao->usuario->name ?? '' }}">
                                 </div>
                                 <div class="col-md">
                                     <div class="form-label">CNPJ</div>

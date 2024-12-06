@@ -30,7 +30,7 @@ class AuthApiController extends Controller
         // Tenta autenticar com os dados passados
         if (!Auth::attempt($request->only('email', 'password'))) {
             //FAZER A VALIDAÇÃO SE É VOLUNTÁRIO E NÃO INSTITUIÇÃO
-            return response()->json(['message' => 'Dados de Login Inválidos'], 401);
+            return response()->json(['message' => 'Dados de Login Inválidos'], 400);
         }
 
         // Busca o usuário pelo email e gera um token

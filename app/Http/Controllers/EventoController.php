@@ -179,6 +179,8 @@ class EventoController extends Controller
             $todosVoluntarios = $query->paginate(5, ['*'], 'voluntariosPage');
         }
 
+        $habilidades = Habilidade::all();
+
         return view('evento', compact(
             'card1',
             'card11',
@@ -196,6 +198,7 @@ class EventoController extends Controller
             'totalAjudas',
             'eventosAtivos',
             'todosVoluntarios',
+            'habilidades'
         ))
         ->with('i', (request()->input('eventosAtivosPage', 1) - 1) * 5)
         ->with('j', (request()->input('voluntariosPage', 1) - 1) * 5);
@@ -215,6 +218,13 @@ class EventoController extends Controller
             'data_hora_limite.required' => 'A data e hora de expiração são obrigatórias.',
             'data_hora_limite.date' => 'A data e hora limite devem ser uma data válida.',
             'data_hora_limite.after' => 'A data e hora limite devem ser no futuro.',
+            'habilidade_nome.required' => 'É necessário informar pelo menos uma habilidade.',
+            'habilidade_nome.array' => 'O campo habilidades deve ser um array.',
+            'habilidade_nome.*.string' => 'Cada habilidade deve ser um nome válido.',
+            'meta_evento.required' => 'A meta de cada habilidade é obrigatória.',
+            'meta_evento.array' => 'O campo metas deve ser um array.',
+            'meta_evento.*.numeric' => 'Cada meta deve ser um valor numérico.',
+            'meta_evento.*.min' => 'Cada meta deve ter no mínimo 1.',
         ];
 
         $request->validate([
@@ -222,6 +232,10 @@ class EventoController extends Controller
             'descricao' => 'required|max:150',
             'data_hora_evento' => 'required|date',
             'data_hora_limite' => 'required|date|after:now',
+            'habilidade_nome' => 'required|array',
+            'habilidade_nome.*' => 'string|max:255',
+            'meta_evento' => 'required|array',
+            'meta_evento.*' => 'numeric|min:1',
         ], $messages);
 
         $evento = null;
@@ -247,6 +261,7 @@ class EventoController extends Controller
                 'estado' => 'nullable|string|max:2',
                 'complemento' => 'nullable|string|max:50',
             ],$messages);
+
             // Cria o endereço se o checkbox for marcado
             $endereco = Endereco::create([
                 'cep_endereco'=> $request->input('cep'),
@@ -280,6 +295,7 @@ class EventoController extends Controller
 
         $habilidadesNomes = $request->input('habilidade_nome');
         $habilidadesMetas = $request->input('meta_evento');
+
         // Verificar se existem habilidades
         if ($habilidadesNomes && $habilidadesMetas) {
             foreach ($habilidadesNomes as $index => $nomeHabilidade) {
@@ -302,17 +318,25 @@ class EventoController extends Controller
 
     public function update(Request $request, Evento $evento)
     {
+        // Busca o endereço relacionado ao evento
         $endereco = Endereco::where('id_endereco', $evento->id_endereco)->first();
 
         $messages = [
             'nome.required' => 'O campo nome do evento é obrigatório.',
             'nome.max' => 'O nome do evento pode ter no máximo 100 caracteres.',
             'descricao.required' => 'O campo descrição é obrigatório.',
-            'descricao.max' => 'A descrição do evento pode ter no máximo 150',
+            'descricao.max' => 'A descrição do evento pode ter no máximo 150 caracteres.',
             'data_hora_evento.required' => 'A data e hora do evento são obrigatórias.',
             'data_hora_limite.required' => 'A data e hora de expiração são obrigatórias.',
             'data_hora_limite.date' => 'A data e hora limite devem ser uma data válida.',
             'data_hora_limite.after' => 'A data e hora limite devem ser no futuro.',
+            'habilidade_nome.required' => 'É necessário informar pelo menos uma habilidade.',
+            'habilidade_nome.array' => 'O campo habilidades deve ser um array.',
+            'habilidade_nome.*.string' => 'Cada habilidade deve ser um nome válido.',
+            'meta_evento.required' => 'A meta de cada habilidade é obrigatória.',
+            'meta_evento.array' => 'O campo metas deve ser um array.',
+            'meta_evento.*.numeric' => 'Cada meta deve ser um valor numérico.',
+            'meta_evento.*.min' => 'Cada meta deve ter no mínimo 1.',
         ];
 
         $request->validate([
@@ -320,6 +344,10 @@ class EventoController extends Controller
             'descricao' => 'required|max:150',
             'data_hora_evento' => 'required|date',
             'data_hora_limite' => 'required|date|after:now',
+            'habilidade_nome' => 'required|array',
+            'habilidade_nome.*' => 'string|max:255',
+            'meta_evento' => 'required|array',
+            'meta_evento.*' => 'numeric|min:1',
         ], $messages);
 
         // Verifica se o checkbox de endereço foi marcado
@@ -343,8 +371,8 @@ class EventoController extends Controller
                 'cidade' => 'nullable|string|max:50',
                 'estado' => 'nullable|string|max:2',
                 'complemento' => 'nullable|string|max:50',
-            ],$messages);
-            // Cria o endereço se o checkbox for marcado
+            ], $messages);
+
             $endereco->update([
                 'cep_endereco'=> $request->input('cep'),
                 'complemento_endereco'=> $request->input('complemento'),
@@ -355,16 +383,14 @@ class EventoController extends Controller
                 'numero_endereco'=> $request->input('numero'),
             ]);
 
-            // Adiciona o id_endereco ao evento
             $evento->update([
                 'nome_evento' => $request->input('nome'),
                 'descricao_evento' => $request->input('descricao'),
                 'data_hora_evento' => $request->input('data_hora_evento'),
                 'data_hora_limite_evento' => $request->input('data_hora_limite'),
-                'id_endereco' => $endereco->id_endereco, // Associa o endereço ao evento
+                'id_endereco' => $endereco->id_endereco,
             ]);
         } else {
-            // Cria o evento sem o endereço
             $evento->update([
                 'nome_evento' => $request->input('nome'),
                 'descricao_evento' => $request->input('descricao'),
@@ -373,23 +399,31 @@ class EventoController extends Controller
             ]);
         }
 
+        // Processar habilidades associadas
         $habilidadesNomes = $request->input('habilidade_nome');
         $habilidadesMetas = $request->input('meta_evento');
-        // Verificar se existem habilidades
+
         if ($habilidadesNomes && $habilidadesMetas) {
             $syncData = [];
 
             foreach ($habilidadesNomes as $index => $nomeHabilidade) {
                 $metaHabilidade = $habilidadesMetas[$index];
 
-                // Verificar se a habilidade já existe
                 $habilidade = Habilidade::where('descricao_habilidade', $nomeHabilidade)->first();
 
-                // Preparar os dados para a tabela intermediária
-                $syncData[$habilidade->id_habilidade] = [
-                    'meta_evento' => $metaHabilidade,
-                    'quantidade_voluntario' => 0, // Inicia com 0
-                ];
+                if ($habilidade) {
+                    // Verificar se a habilidade já existe no evento
+                    $habilidadeExistente = $evento->habilidades()
+                        ->where('evento_has_habilidade.id_habilidade', $habilidade->id_habilidade)
+                        ->first();
+
+                    $syncData[$habilidade->id_habilidade] = [
+                        'meta_evento' => $metaHabilidade,
+                        'quantidade_voluntario' => $habilidadeExistente
+                            ? $habilidadeExistente->pivot->quantidade_voluntario // Mantém o valor existente
+                            : 0, // Se for nova, inicia com 0
+                    ];
+                }
             }
 
             $evento->habilidades()->sync($syncData);

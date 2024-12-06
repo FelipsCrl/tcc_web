@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contato;
+use App\Models\Endereco;
 use App\Models\Habilidade;
 use App\Models\Instituicao;
+use App\Models\User;
+use App\Models\Voluntario;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class VoluntarioController extends Controller
 {
@@ -207,4 +214,266 @@ class VoluntarioController extends Controller
             'dados',
         ));
     }
+
+    public function listagemHabilidade()
+    {
+        $habilidades = Habilidade::select('id_habilidade', 'descricao_habilidade')->get();
+
+        return response()->json([
+            'data' => $habilidades,
+            'status' => 'success',
+            'message' => 'Listagem solicitada com sucesso!',
+        ], 200);
+    }
+
+    public function dadosVoluntario()
+    {
+        $user = Auth::user();
+
+        $voluntario = Voluntario::where('id_usuario', $user->id)
+            ->select(
+                'id_voluntario',
+                'id_usuario',
+                'id_contato',
+                'id_endereco',
+                'cpf_voluntario'
+            )
+            ->with([
+                'usuario:id,name,email',
+                'contato:id_contato,telefone_contato,whatsapp_contato',
+                'endereco:id_endereco,cep_endereco,complemento_endereco,cidade_endereco,logradouro_endereco,estado_endereco,bairro_endereco,numero_endereco',
+                'habilidades:id_habilidade,descricao_habilidade'
+            ])
+            ->get();
+
+        return response()->json([
+            'data' => $voluntario,
+            'status' => 'success',
+            'message' => 'Listagem solicitada com sucesso!',
+        ], 200);
+    }
+
+    public function atualizarHabilidades(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'habilidades' => 'required|array',
+            'habilidades.*' => 'integer|exists:habilidade,id_habilidade',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors(),
+                'variavel' => $request->habilidades
+            ], 400);
+        }
+
+        // Obtém o usuário autenticado
+        $user = Auth::user();
+
+        // Encontre o voluntário associado ao usuário
+        $voluntario = Voluntario::where('id_usuario', $user->id)->first();
+
+        if (!$voluntario) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Voluntário não encontrado.',
+            ], 404);
+        }
+
+        // Atualize as habilidades com sync
+        $voluntario->habilidades()->sync($request->habilidades);
+
+        // Retorna a resposta com a lista de habilidades atualizadas
+        return response()->json([
+            'message' => 'Habilidades atualizadas com sucesso!',
+            'habilidades' => $voluntario->habilidades()->pluck('habilidade.id_habilidade'),
+        ], 200);
+    }
+
+    public function atualizarCredenciais(Request $request)
+    {
+        // Validação dos dados
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),  // Verifica se o email é único, excluindo o do usuário autenticado
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        // Obtém o usuário autenticado
+        $user = Auth::user();
+        $user = User::find($user->id);
+
+        // Atualiza as credenciais do usuário
+        $user->name = $request->nome;
+        $user->email = $request->email;
+        $user->save();
+
+        // Retorna uma resposta de sucesso
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Credenciais atualizadas com sucesso!',
+        ], 200);
+    }
+
+    public function atualizarContato(Request $request)
+    {
+        // Validação dos dados
+        $validator = Validator::make($request->all(), [
+            'telefone' => 'required|string|min:15|max:15',
+            'whatsapp' => 'nullable|string|min:15|max:15',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        $user = Auth::user();
+        $voluntario = Voluntario::where('id_usuario', $user->id)->first();
+        $contato = Contato::find($voluntario->id_contato);
+
+        $contato->telefone_contato = $request->telefone;
+        if ($request->whatsapp) {
+            $contato->whatsapp_contato = $request->whatsapp;
+        }
+        $contato->save();
+
+        // Retorna uma resposta de sucesso
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Contato atualizado com sucesso!',
+        ], 200);
+    }
+
+    public function atualizarEndereco(Request $request)
+    {
+        // Validação dos dados
+        $validator = Validator::make($request->all(), [
+            'rua' => 'required|string|max:50',
+            'cep' => 'required|string|max:9',
+            'numero' => 'required|string',
+            'bairro' => 'required|string|max:50',
+            'cidade' => 'required|string|max:50',
+            'estado' => 'required|string|max:2',
+            'complemento' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        $user = Auth::user();
+        $voluntario = Voluntario::where('id_usuario', $user->id)->first();
+        $endereco = Endereco::find($voluntario->id_endereco);
+
+        $endereco->update([
+            'cep_endereco'=> $request->cep,
+            'complemento_endereco'=> $request->complemento,
+            'cidade_endereco'=> $request->cidade,
+            'logradouro_endereco'=> $request->rua,
+            'estado_endereco'=> $request->estado,
+            'bairro_endereco'=> $request->bairro,
+            'numero_endereco'=> $request->numero,
+        ]);
+
+        // Retorna uma resposta de sucesso
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Endereço atualizado com sucesso!',
+        ], 200);
+    }
+
+    public function cadastro(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|string|max:80',
+            'cpf' => 'required|string|min:14|max:14|unique:voluntario,cpf_voluntario',
+            'email' => 'required|email|max:80|unique:users,email',
+            'senha' => 'required|min:6|max:40',
+            'habilidades' => 'required|array',
+            'habilidades.*' => 'integer|exists:habilidade,id_habilidade',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        $usuario = User::create([
+            'name' => $request->nome,
+            'email' => $request->email,
+            'password' => bcrypt($request->senha), // Criptografando a senha
+        ]);
+
+        $idUsuario = $usuario->id;
+
+        $voluntario = Voluntario::create([
+            'id_usuario' => $idUsuario,  // Associando o ID do usuário criado
+            'cpf_voluntario' => $request->cpf,
+        ]);
+
+        if (!$voluntario) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erro ao criar o voluntário.',
+            ], 500);
+        }
+
+        $voluntario->habilidades()->sync($request->habilidades);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Conta criada com sucesso!',
+        ], 200);
+    }
+
+    public function atualizarSenha(Request $request)
+    {
+        // Validação dos dados
+        $validator = Validator::make($request->all(), [
+            'senhaNova' => 'required|min:6',
+            'senhaAntiga' => 'required|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        $user = User::find(Auth::user()->id);
+
+        if (!Hash::check($request->senhaAntiga, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'A senha atual está incorreta!'
+            ], 400);
+        }
+
+        // Atualizar a senha
+        $user->password = Hash::make($request->senhaNova);
+        $user->save();
+
+        // Retorna uma resposta de sucesso
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Senha atualizada com sucesso!',
+        ], 200);
+    }
+
 }

@@ -45,7 +45,7 @@ class Voluntario extends Model
     public function instituicoes()
     {
         return $this->belongsToMany(Instituicao::class, 'instituicao_has_voluntario', 'id_instituicao' ,'id_voluntario')
-            ->withPivot('habilidade_voluntario')
+            ->withPivot('habilidade_voluntario','situacao_solicitacao_voluntario')
             ->withTimestamps();
     }
 

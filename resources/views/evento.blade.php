@@ -377,20 +377,11 @@
                                 <div class="form-label">Selecione as habilidades para o evento</div>
                                 <select class="select-states form-select" id="select-habilidades" multiple>
                                     <option value="">Selecione uma habilidade</option>
-                                    <option value="comunicacao">Comunicação</option>
-                                    <option value="cuidados">Cuidados</option>
-                                    <option value="educacao">Educação</option>
-                                    <option value="culinaria">Culinária</option>
-                                    <option value="musica">Música</option>
-                                    <option value="danca">Dança</option>
-                                    <option value="administracao">Administração</option>
-                                    <option value="bem-estar-animal">Bem-estar Animal</option>
-                                    <option value="marketing">Marketing</option>
-                                    <option value="ti">TI</option>
-                                    <option value="pesquisa">Pesquisa</option>
-                                    <option value="artes-marciais">Artes Marciais</option>
-                                    <option value="enfermagem">Enfermagem</option>
-                                    <option value="medicina">Medicina</option>
+                                    @foreach ($habilidades as $habilidade)
+                                        <option value="{{ \Illuminate\Support\Str::slug($habilidade->descricao_habilidade, '-') }}">
+                                            {{ $habilidade->descricao_habilidade }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -651,20 +642,11 @@
                                 <label class="form-label">Habilidades para o evento</label>
                                 <select class="form-select" id="seleciona-habilidades" multiple>
                                     <option value="">Selecione uma habilidade</option>
-                                    <option value="comunicacao">Comunicação</option>
-                                    <option value="cuidados">Cuidados</option>
-                                    <option value="educacao">Educação</option>
-                                    <option value="culinaria">Culinária</option>
-                                    <option value="musica">Música</option>
-                                    <option value="danca">Dança</option>
-                                    <option value="administracao">Administração</option>
-                                    <option value="bem-estar-animal">Bem-estar Animal</option>
-                                    <option value="marketing">Marketing</option>
-                                    <option value="ti">TI</option>
-                                    <option value="pesquisa">Pesquisa</option>
-                                    <option value="artes-marciais">Artes Marciais</option>
-                                    <option value="enfermagem">Enfermagem</option>
-                                    <option value="medicina">Medicina</option>
+                                    @foreach ($habilidades as $habilidade)
+                                        <option value="{{ \Illuminate\Support\Str::slug($habilidade->descricao_habilidade, '-') }}">
+                                            {{ $habilidade->descricao_habilidade }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -812,7 +794,7 @@
             const habilidadesArray = habilidadesSelecionadas.split(', ').map(h => h.trim());
             const metasArray = metasSelecionadas.split(', ');
 
-            container.innerHTML = ''; // Limpa o container de inputs
+            //container.innerHTML = ''; // Limpa o container de inputs
 
             habilidadesArray.forEach((habilidade, index) => {
                 container.innerHTML += criarInput(habilidade, metasArray[index] || '');

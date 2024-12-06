@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Contato;
+use App\Models\Doacao;
 use App\Models\Endereco;
 use App\Models\Instituicao;
 use App\Models\User;
@@ -75,6 +76,16 @@ class InstituicaoFactory extends Factory
                     ])
                 ]);
             }
+
+            //'Doar Agora' das instituições
+            Doacao::create([
+                'id_instituicao' => $instituicao->id_instituicao,
+                'observacao_doacao' => null,
+                'data_hora_limite_doacao' => null,
+                'nome_doacao' => null,
+                'coleta_doacao' => null,
+                'card_doacao' => '0'
+            ]);
         });
     }
 }
