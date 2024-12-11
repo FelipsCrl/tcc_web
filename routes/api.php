@@ -13,7 +13,6 @@ use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 Route::post('/loginApi', [AuthApiController::class, 'login']);
 Route::get('/listaHabilidade', [VoluntarioController::class, 'listagemHabilidade']);
 Route::post('/cadastro', [VoluntarioController::class, 'cadastro']);
-
 Route::post('/esqueceu', [PasswordResetLinkController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -31,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/atualizaContato', [VoluntarioController::class, 'atualizarContato']);
     Route::post('/atualizaEndereco', [VoluntarioController::class, 'atualizarEndereco']);
     Route::post('/atualizaSenha', [VoluntarioController::class, 'atualizarSenha']);
+    Route::get('/logoutApi', [AuthApiController::class, 'logout']);
 });
 
 Route::get('/user', function (Request $request) {

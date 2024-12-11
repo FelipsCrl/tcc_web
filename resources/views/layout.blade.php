@@ -209,16 +209,19 @@
     @yield('modal')
     <div class="modal modal-blur fade" id="modal-small" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="modal-title">Tem certeza?</div>
-                    <div>Deseja realmente sair da sua conta?</div>
+            <form action="{{route('logout')}}" method="GET">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="modal-title">Tem certeza?</div>
+                        <div>Deseja realmente sair da sua conta?</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Sair</button>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancelar</button>
-                    <a href="{{route('logout')}}" class="btn btn-danger">Sair</a>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
     <!-- Libs JS -->

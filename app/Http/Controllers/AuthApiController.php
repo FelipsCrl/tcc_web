@@ -30,7 +30,7 @@ class AuthApiController extends Controller
         // Tenta autenticar com os dados passados
         if (!Auth::attempt($request->only('email', 'password'))) {
             //FAZER A VALIDAÇÃO SE É VOLUNTÁRIO E NÃO INSTITUIÇÃO
-            return response()->json(['message' => 'Dados de Login Inválidos'], 400);
+            return response()->json(['message' => 'Dados de login inválidos!'], 400);
         }
 
         // Busca o usuário pelo email e gera um token
@@ -51,14 +51,17 @@ class AuthApiController extends Controller
                     'tokenAuth' => $token
                 ],
             ], 200);
+        }else{
+
+            return response()->json(['message' => 'Usuário não é um voluntário!'], 400);
         }
     }
 
     // Função de logout
-    public function logout(Request $request)
+    public function logout()
     {
         // Pega o usuário logado e deleta seus tokens
-        $user = Auth::user()->id;
+        $user = User::find(Auth::user()->id);
         $user->tokens()->delete();
 
         return response()->json(['message' => 'Usuário efetuou logout com sucesso'], 200);

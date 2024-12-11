@@ -264,7 +264,6 @@ class VoluntarioController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $validator->errors(),
-                'variavel' => $request->habilidades
             ], 400);
         }
 
@@ -296,7 +295,7 @@ class VoluntarioController extends Controller
         // Validação dos dados
         $validator = Validator::make($request->all(), [
             'nome' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),  // Verifica se o email é único, excluindo o do usuário autenticado
+            //'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),  // Verifica se o email é único, excluindo o do usuário autenticado
         ]);
 
         if ($validator->fails()) {
@@ -312,7 +311,6 @@ class VoluntarioController extends Controller
 
         // Atualiza as credenciais do usuário
         $user->name = $request->nome;
-        $user->email = $request->email;
         $user->save();
 
         // Retorna uma resposta de sucesso
@@ -342,9 +340,7 @@ class VoluntarioController extends Controller
         $contato = Contato::find($voluntario->id_contato);
 
         $contato->telefone_contato = $request->telefone;
-        if ($request->whatsapp) {
-            $contato->whatsapp_contato = $request->whatsapp;
-        }
+        $contato->whatsapp_contato = $request->whatsapp;
         $contato->save();
 
         // Retorna uma resposta de sucesso
@@ -397,19 +393,32 @@ class VoluntarioController extends Controller
 
     public function cadastro(Request $request)
     {
+        $messages = [
+            'cpf.unique' => 'O CPF informado já está cadastrado.',
+            'cpf.size' => 'O CPF deve ter exatamente 14 caracteres no formato correto.',
+            'cpf.regex' => 'O CPF deve estar no formato "000.000.000-00".',
+            'email.email' => 'O email deve ser válido.',
+            'email.unique' => 'O email informado já está cadastrado.',
+            'senha.min' => 'A senha deve ter pelo menos 6 caracteres.',
+            'senha.max' => 'A senha pode ter no máximo 60 caracteres.',
+            'nome.required' => 'O nome é obrigatório.',
+            'habilidades.required' => 'É necessário selecionar pelo menos uma habilidade.',
+            'habilidades.*.exists' => 'Uma ou mais habilidades não são válidas.',
+        ];
+
         $validator = Validator::make($request->all(), [
             'nome' => 'required|string|max:80',
-            'cpf' => 'required|string|min:14|max:14|unique:voluntario,cpf_voluntario',
+            'cpf' => 'required|string|size:14|unique:voluntario,cpf_voluntario|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
             'email' => 'required|email|max:80|unique:users,email',
-            'senha' => 'required|min:6|max:40',
+            'senha' => 'required|min:6|max:60',
             'habilidades' => 'required|array',
             'habilidades.*' => 'integer|exists:habilidade,id_habilidade',
-        ]);
+        ], $messages);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'message' => $validator->errors()
+                'errors' => $validator->errors()
             ], 400);
         }
 
@@ -429,8 +438,8 @@ class VoluntarioController extends Controller
         if (!$voluntario) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Erro ao criar o voluntário.',
-            ], 500);
+                'message' => 'Não foi possível criar a conta!',
+            ], 401);
         }
 
         $voluntario->habilidades()->sync($request->habilidades);

@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Route;
 // Rotas públicas
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.login');
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::post('/instituicao/store', [InstituicaoController::class, 'store'])->name('instituicao.store');
 Route::get('/instituicao/create', [InstituicaoController::class, 'create'])->name('instituicao.create');
@@ -20,6 +19,7 @@ Route::get('/instituicao/create', [InstituicaoController::class, 'create'])->nam
 // Rotas protegidas por autenticação
 Route::middleware('auth')->group(function () {
     Route::get('/inicio', [HomeController::class, 'index'])->name('home');
+    Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::resource('doacao', DoacaoController::class);
     Route::resource('evento', EventoController::class);
