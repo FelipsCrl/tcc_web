@@ -488,7 +488,6 @@ class DoacaoController extends Controller
                     ->where('id_voluntario', $voluntario->id_voluntario)
                     ->where('id_doacao', $request->id_doacao)
                     ->update([
-                        'situacao_solicitacao_doacao' => 0,
                         'data_hora_coleta' => $request->data_hora_coleta,
                         'categoria_doacao' => $categoria->descricao_categoria,
                         'quantidade_doacao' => $request->quantidade_doacao,
@@ -504,7 +503,7 @@ class DoacaoController extends Controller
                 DB::table('voluntario_has_doacao')->insert([
                     'id_voluntario' => $voluntario->id_voluntario,
                     'id_doacao' => $request->id_doacao,
-                    'situacao_solicitacao_doacao' => 0,
+                    'situacao_solicitacao_doacao' => 1,
                     'data_hora_coleta' => $request->data_hora_coleta,
                     'categoria_doacao' => $categoria->descricao_categoria,
                     'quantidade_doacao' => $request->quantidade_doacao,

@@ -143,7 +143,7 @@
                                     <td><span class="text-secondary">{{ $loop->iteration }}</span></td>
                                     <td>{{ $solicitacao->habilidade_voluntario }}</td>
                                     <td>{{ $solicitacao->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($solicitacao->created_at)->format('d/m/Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($solicitacao->updated_at_iv)->format('d/m/Y') }}</td>
                                     <td class="text-end">
                                         <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-voluntario"
                                             data-nome="{{$solicitacao->name}}"
@@ -281,7 +281,7 @@
                                     <td>{{ $solicitacao->categoria_doacao }}</td>
                                     <td>{{ $solicitacao->quantidade_doacao }}</td>
                                     <td>{{ $solicitacao->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($solicitacao->created_at)->format('d/m/Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($solicitacao->updated_at_vd)->format('d/m/Y') }}</td>
                                     <td class="text-end">
                                         <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-doador"
                                             data-nome="{{$solicitacao->name}}"
@@ -681,6 +681,7 @@
         const labels = @json($labelsSolicitacoes);
         const dadosMesAtual = @json($dadosAtualSolicitacoes);
         const dadosMesAnterior = @json($dadosAnteriorSolicitacoes);
+        console.log(dadosMesAnterior, dadosMesAtual);
 
         // Inicialização do gráfico
         window.ApexCharts && (new ApexCharts(document.getElementById('chart-card3'), {

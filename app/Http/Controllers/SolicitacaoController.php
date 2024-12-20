@@ -50,33 +50,34 @@ class SolicitacaoController extends Controller
             ->sum('total');
         $card11 = ($totalSolicita > 0) ? round(($card1 / $totalSolicita) * 100, 2) : 0;
 
-        //Card2
+        // Card2
         $card2 = DB::table('voluntario_has_doacao as vd')
-            ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
-            ->where('d.id_instituicao', $instituicao->id_instituicao)
-            ->where('d.card_doacao', 0)
-            ->whereMonth('vd.created_at', Carbon::now()->month)
-            ->select(DB::raw('DATE(vd.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
-            ->groupBy('date')
-
-            ->union(
-                DB::table('instituicao_has_voluntario as iv')
-                    ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
-                    ->where('iv.id_instituicao', $instituicao->id_instituicao)
-                    ->whereMonth('iv.created_at', Carbon::now()->month)
-                    ->select(DB::raw('DATE(iv.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
-                    ->groupBy('date')
-            )
-            ->orderBy('date', 'asc')
-            ->get();
+        ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
+        ->where('d.id_instituicao', $instituicao->id_instituicao)
+        ->where('d.card_doacao', 0)
+        ->whereMonth('vd.created_at', Carbon::now()->month)
+        ->select(DB::raw('DATE(vd.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
+        ->groupBy('date')
+        ->unionAll( // Substituir UNION por UNION ALL
+            DB::table('instituicao_has_voluntario as iv')
+                ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
+                ->where('iv.id_instituicao', $instituicao->id_instituicao)
+                ->whereMonth('iv.created_at', Carbon::now()->month)
+                ->select(DB::raw('DATE(iv.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
+                ->groupBy('date')
+        )
+        ->orderBy('date', 'asc')
+        ->get();
         // Agrupar os dados por data e somar os totais
-        $groupedData = $card2->groupBy('date')->map(function ($items) {
-            return $items->sum('total_solicitacoes');
+        $groupedData = $card2
+        ->groupBy('date') // Agrupa os resultados pela data
+        ->map(function ($items) {
+            return $items->sum('total_solicitacoes'); // Soma os valores para cada data
         });
         // Extrair rótulos e quantidades para o gráfico
-        $labelsSolicitacoesMes = $groupedData->keys()->toArray();
-        $totalSolicitacoesPorDiaMes = $groupedData->values()->toArray();
-        // Somar todas as doações do mês inteiro
+        $labelsSolicitacoesMes = $groupedData->keys()->toArray(); // Datas como rótulos
+        $totalSolicitacoesPorDiaMes = $groupedData->values()->toArray(); // Totais por dia
+        // Somar todas as solicitações do mês inteiro
         $totalSolicitacoesMes = array_sum($totalSolicitacoesPorDiaMes);
 
         // Card3
@@ -93,7 +94,7 @@ class SolicitacaoController extends Controller
             ->whereBetween('vd.updated_at', [$inicioMesAtual, $hoje])
             ->select(DB::raw('DATE(vd.updated_at) as dia'), DB::raw('COUNT(*) as quantidade'))
             ->groupBy('dia')
-            ->union(
+            ->unionAll( // Substituído UNION por UNION ALL
                 DB::table('instituicao_has_voluntario as iv')
                     ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
@@ -103,6 +104,13 @@ class SolicitacaoController extends Controller
                     ->groupBy('dia')
             )
             ->get();
+        // Agrupar e somar quantidades por dia para o mês atual
+        $dadosMesAtualAgrupados = $solicitacoesMesAtual
+            ->groupBy('dia')
+            ->map(function ($group) {
+                return $group->sum('quantidade');
+            })
+            ->toArray();
         // Solicitações em espera para o mês anterior
         $solicitacoesMesAnterior = DB::table('voluntario_has_doacao as vd')
             ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
@@ -112,7 +120,7 @@ class SolicitacaoController extends Controller
             ->whereBetween('vd.updated_at', [$inicioMesAnterior, $fimMesAnterior])
             ->select(DB::raw('DATE(vd.updated_at) as dia'), DB::raw('COUNT(*) as quantidade'))
             ->groupBy('dia')
-            ->union(
+            ->unionAll( // Substituído UNION por UNION ALL
                 DB::table('instituicao_has_voluntario as iv')
                     ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
@@ -122,9 +130,13 @@ class SolicitacaoController extends Controller
                     ->groupBy('dia')
             )
             ->get();
-        // Formatar dados para o gráfico
-        $dadosMesAtual = $solicitacoesMesAtual->pluck('quantidade', 'dia')->toArray();
-        $dadosMesAnterior = $solicitacoesMesAnterior->pluck('quantidade', 'dia')->toArray();
+        // Agrupar e somar quantidades por dia para o mês anterior
+        $dadosMesAnteriorAgrupados = $solicitacoesMesAnterior
+            ->groupBy('dia')
+            ->map(function ($group) {
+                return $group->sum('quantidade');
+            })
+            ->toArray();
         // Criar arrays de datas e dados para o gráfico
         $labelsSolicitacoes = [];
         $dadosAtualSolicitacoes = [];
@@ -134,8 +146,8 @@ class SolicitacaoController extends Controller
             $dataAnterior = $inicioMesAnterior->copy()->day($dia)->toDateString();
 
             $labelsSolicitacoes[] = $dataAtual;
-            $dadosAtualSolicitacoes[] = $dadosMesAtual[$dataAtual] ?? 0;
-            $dadosAnteriorSolicitacoes[] = $dadosMesAnterior[$dataAnterior] ?? 0;
+            $dadosAtualSolicitacoes[] = $dadosMesAtualAgrupados[$dataAtual] ?? 0;
+            $dadosAnteriorSolicitacoes[] = $dadosMesAnteriorAgrupados[$dataAnterior] ?? 0;
         }
         // Total de solicitações em espera para o mês atual
         $totalSolicitacoes = array_sum($dadosAtualSolicitacoes);
@@ -228,6 +240,7 @@ class SolicitacaoController extends Controller
             ->select(
                 'u.*',
                 'iv.*',
+                'iv.updated_at as updated_at_iv',
                 'c.telefone_contato',
                 'e.*'
             );
@@ -259,6 +272,7 @@ class SolicitacaoController extends Controller
             ->select(
                 'u.*',
                 'vd.*',
+                'vd.updated_at as updated_at_vd',
                 'c.telefone_contato',
                 'e.*'
             );
@@ -336,11 +350,13 @@ class SolicitacaoController extends Controller
         $doacoes = DB::table('voluntario_has_doacao as vd')
             ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
             ->join('instituicao as i', 'd.id_instituicao', '=', 'i.id_instituicao')
-            ->join('users as u', 'i.id_usuario', '=', 'u.id')
+            ->join('users as u_voluntario', 'i.id_usuario', '=', 'u_voluntario.id') // Join para o responsável pela instituição
+            ->join('users as u_instituicao', 'i.id_usuario', '=', 'u_instituicao.id') // Join para a instituição
             ->where('d.card_doacao', 0)
             ->where('vd.id_voluntario', $voluntario->id_voluntario)
             ->select(
-                'u.name as nome',
+                'u_voluntario.name as nome_voluntario', // Nome do voluntário
+                'u_instituicao.name as nome_instituicao', // Nome da instituição
                 'vd.categoria_doacao as categoria',
                 'vd.created_at as data',
                 'vd.situacao_solicitacao_doacao as situacao'
@@ -355,10 +371,12 @@ class SolicitacaoController extends Controller
         // Solicitações de voluntariado
         $voluntariados = DB::table('instituicao_has_voluntario as iv')
             ->join('instituicao as i', 'iv.id_instituicao', '=', 'i.id_instituicao')
-            ->join('users as u', 'i.id_usuario', '=', 'u.id')
+            ->join('users as u_voluntario', 'iv.id_voluntario', '=', 'u_voluntario.id') // Join para o voluntário
+            ->join('users as u_instituicao', 'i.id_usuario', '=', 'u_instituicao.id') // Join para o responsável pela instituição
             ->where('iv.id_voluntario', $voluntario->id_voluntario)
             ->select(
-                'u.name as nome',
+                'u_voluntario.name as nome_voluntario', // Nome do voluntário
+                'u_instituicao.name as nome_instituicao', // Nome da instituição
                 'iv.habilidade_voluntario as habilidade',
                 'iv.created_at as data',
                 'iv.situacao_solicitacao_voluntario as situacao'

@@ -104,31 +104,32 @@ class HomeController extends Controller
         $totalVoluntariosMes = array_sum($totalVoluntariosCard3);
 
         $card4 = DB::table('voluntario_has_doacao as vd')
-            ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
-            ->where('d.id_instituicao', $instituicao->id_instituicao)
-            ->where('d.card_doacao', 0)
-            ->whereMonth('vd.created_at', Carbon::now()->month)
-            ->select(DB::raw('DATE(vd.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
-            ->groupBy('date')
-
-            ->union(
-                DB::table('instituicao_has_voluntario as iv')
-                    ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
-                    ->where('iv.id_instituicao', $instituicao->id_instituicao)
-                    ->whereMonth('iv.created_at', Carbon::now()->month)
-                    ->select(DB::raw('DATE(iv.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
-                    ->groupBy('date')
-            )
-            ->orderBy('date', 'asc')
-            ->get();
+        ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
+        ->where('d.id_instituicao', $instituicao->id_instituicao)
+        ->where('d.card_doacao', 0)
+        ->whereMonth('vd.created_at', Carbon::now()->month)
+        ->select(DB::raw('DATE(vd.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
+        ->groupBy('date')
+        ->unionAll( // Substituir UNION por UNION ALL
+            DB::table('instituicao_has_voluntario as iv')
+                ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
+                ->where('iv.id_instituicao', $instituicao->id_instituicao)
+                ->whereMonth('iv.created_at', Carbon::now()->month)
+                ->select(DB::raw('DATE(iv.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
+                ->groupBy('date')
+        )
+        ->orderBy('date', 'asc')
+        ->get();
         // Agrupar os dados por data e somar os totais
-        $groupedData = $card4->groupBy('date')->map(function ($items) {
-            return $items->sum('total_solicitacoes');
+        $groupedData = $card4
+        ->groupBy('date') // Agrupa os resultados pela data
+        ->map(function ($items) {
+            return $items->sum('total_solicitacoes'); // Soma os valores para cada data
         });
         // Extrair rótulos e quantidades para o gráfico
-        $labelsSolicitacoesMes = $groupedData->keys()->toArray();
-        $totalSolicitacoesCard4 = $groupedData->values()->toArray();
-        // Somar todas as doações do mês inteiro
+        $labelsSolicitacoesMes = $groupedData->keys()->toArray(); // Datas como rótulos
+        $totalSolicitacoesCard4 = $groupedData->values()->toArray(); // Totais por dia
+        // Somar todas as solicitações do mês inteiro
         $totalSolicitacoesMes = array_sum($totalSolicitacoesCard4);
 
         //Gráfico de solicitações

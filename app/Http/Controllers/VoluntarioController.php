@@ -339,9 +339,30 @@ class VoluntarioController extends Controller
         $voluntario = Voluntario::where('id_usuario', $user->id)->first();
         $contato = Contato::find($voluntario->id_contato);
 
-        $contato->telefone_contato = $request->telefone;
-        $contato->whatsapp_contato = $request->whatsapp;
-        $contato->save();
+        if($contato){
+            $contato->telefone_contato = $request->telefone;
+            $contato->whatsapp_contato = $request->whatsapp;
+            $contato->save();
+        }
+        else{
+            if($request->whatsapp){
+                $newContato = Contato::create([
+                    'telefone_contato' => $request->telefone,
+                    'whatsapp_contato' => $request->whatsapp,
+                ]);
+
+                $voluntario->id_contato = $newContato->id_contato;
+                $voluntario->save();
+            }
+            else{
+                $newContato = Contato::create([
+                    'telefone_contato' => $request->telefone,
+                ]);
+
+                $voluntario->id_contato = $newContato->id_contato;
+                $voluntario->save();
+            }
+        }
 
         // Retorna uma resposta de sucesso
         return response()->json([
@@ -374,15 +395,31 @@ class VoluntarioController extends Controller
         $voluntario = Voluntario::where('id_usuario', $user->id)->first();
         $endereco = Endereco::find($voluntario->id_endereco);
 
-        $endereco->update([
-            'cep_endereco'=> $request->cep,
-            'complemento_endereco'=> $request->complemento,
-            'cidade_endereco'=> $request->cidade,
-            'logradouro_endereco'=> $request->rua,
-            'estado_endereco'=> $request->estado,
-            'bairro_endereco'=> $request->bairro,
-            'numero_endereco'=> $request->numero,
-        ]);
+        if($endereco){
+            $endereco->update([
+                'cep_endereco'=> $request->cep,
+                'complemento_endereco'=> $request->complemento,
+                'cidade_endereco'=> $request->cidade,
+                'logradouro_endereco'=> $request->rua,
+                'estado_endereco'=> $request->estado,
+                'bairro_endereco'=> $request->bairro,
+                'numero_endereco'=> $request->numero,
+            ]);
+        }
+        else{
+            $newEndereco = Endereco::create([
+                'cep_endereco'=> $request->cep,
+                'complemento_endereco'=> $request->complemento,
+                'cidade_endereco'=> $request->cidade,
+                'logradouro_endereco'=> $request->rua,
+                'estado_endereco'=> $request->estado,
+                'bairro_endereco'=> $request->bairro,
+                'numero_endereco'=> $request->numero,
+            ]);
+
+            $voluntario->id_endereco = $newEndereco->id_endereco;
+            $voluntario->save();
+        }
 
         // Retorna uma resposta de sucesso
         return response()->json([

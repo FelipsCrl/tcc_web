@@ -10,6 +10,7 @@ use App\Models\Habilidade;
 use App\Models\Instituicao;
 use App\Models\User;
 use App\Models\Voluntario;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -337,21 +338,27 @@ class InstituicaoController extends Controller
         ])
         ->get()
         ->map(function ($instituicao) {
+            // Lista de dias da semana em ordem
+            $diasSemana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
             // Verificar se o campo funcionamento_instituicao não está vazio ou nulo
             $funcionamento = $instituicao->funcionamento_instituicao ? json_decode($instituicao->funcionamento_instituicao, true) : [];
 
             $horariosAgrupados = [];
             if (!empty($funcionamento)) {
-                foreach ($funcionamento as $dia => $horario) {
-                    if ($horario['funciona']) {
-                        $horarioTexto = "{$horario['abertura']} até {$horario['fechamento']}";
+                // Reorganizar o funcionamento dos dias de acordo com a ordem correta
+                foreach ($diasSemana as $dia) {
+                    if (isset($funcionamento[$dia]) && $funcionamento[$dia]['funciona']) {
+                        $horarioTexto = "{$funcionamento[$dia]['abertura']} até {$funcionamento[$dia]['fechamento']}";
                         $horariosAgrupados[$horarioTexto][] = $dia;
                     }
                 }
             }
 
+            // Gerar o texto final dos dias e horários de funcionamento
             $diasFuncionamento = '';
             foreach ($horariosAgrupados as $horario => $dias) {
+                // Gerar o texto final para os dias ordenados
                 $diasFuncionamento .= implode(', ', $dias) . ": $horario\n";
             }
 
@@ -369,7 +376,7 @@ class InstituicaoController extends Controller
                     "{$instituicao->endereco->cidade_endereco}, {$instituicao->endereco->bairro_endereco}, {$instituicao->endereco->logradouro_endereco}, {$instituicao->endereco->numero_endereco}, {$instituicao->endereco->complemento_endereco}, {$instituicao->endereco->cep_endereco}, {$instituicao->endereco->estado_endereco}" :
                     'Mesmo endereço da instituição',
                 'funcionamento_instituicao' => [
-                    'horario' => $diasFuncionamento,
+                    'horario' => trim($diasFuncionamento),
                 ],
             ];
         });
@@ -379,11 +386,12 @@ class InstituicaoController extends Controller
             'status' => 'success',
             'message' => 'Listagem solicitada com sucesso!',
         ], 200);
-
     }
+
 
     public function inscreveInstituicao(Request $request)
     {
+        Carbon::setLocale('pt_BR');
         $user = Auth::user();
         $voluntario = Voluntario::where('id_usuario', $user->id)->first();
 
@@ -401,6 +409,41 @@ class InstituicaoController extends Controller
             ], 422);
         }
 
+        // Verifica se já existe uma solicitação para a mesma instituição
+        $solicitacaoExistente = DB::table('instituicao_has_voluntario')
+            ->where('id_instituicao', $request->id_instituicao)
+            ->where('id_voluntario', $voluntario->id_voluntario)
+            ->first();
+
+        if ($solicitacaoExistente) {
+            // Verifica a situação e a data da solicitação existente
+            if (
+                $solicitacaoExistente->situacao_solicitacao_voluntario == 0 || // Solicitação em espera
+                now()->diffInDays($solicitacaoExistente->updated_at) < 30 // Menos de 30 dias
+            ) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Você já possui uma solicitação recente ou em andamento para esta instituição!',
+                ], 422);
+            }
+
+            // Caso a situação não esteja em espera e já tenham passado 30 dias, atualiza o registro
+            DB::table('instituicao_has_voluntario')
+                ->where('id_instituicao', $request->id_instituicao)
+                ->where('id_voluntario', $voluntario->id_voluntario)
+                ->update([
+                    'habilidade_voluntario' => Habilidade::where('id_habilidade', $request->id_habilidade)->value('descricao_habilidade'),
+                    'situacao_solicitacao_voluntario' => 0, // Define como nova solicitação em espera
+                    'updated_at' => Carbon::now(),
+                ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Inscrição registrada com sucesso!',
+            ], 200);
+        }
+
+        // Caso não exista solicitação, cria um novo registro
         $habilidade = Habilidade::where('id_habilidade', $request->id_habilidade)->first();
 
         DB::table('instituicao_has_voluntario')->insert([
@@ -420,6 +463,7 @@ class InstituicaoController extends Controller
 
     public function doarAgora(Request $request)
     {
+        Carbon::setLocale('pt_BR');
         $user = Auth::user();
         $voluntario = Voluntario::where('id_usuario', $user->id)->first();
 
@@ -455,8 +499,18 @@ class InstituicaoController extends Controller
                 ->first();
 
             if ($doacaoExistente) {
-                // Atualiza os campos se o registro já existir
-                DB::table('voluntario_has_doacao')
+                $doacaoEmEspera = DB::table('voluntario_has_doacao as vd')
+                ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
+                ->where('vd.id_voluntario', $voluntario->id_voluntario)
+                ->where('vd.id_doacao', $doacaoInstituicao->id_doacao)
+                ->where('vd.situacao_solicitacao_doacao', '=', '0')
+                ->where('d.card_doacao', 0)
+                ->where('d.id_instituicao', $request->id_instituicao)
+                ->first();
+
+                if (!$doacaoEmEspera) {
+                    // Atualiza os campos se o registro já existir
+                    DB::table('voluntario_has_doacao')
                     ->where('id_voluntario', $voluntario->id_voluntario)
                     ->where('id_doacao', $doacaoInstituicao->id_doacao)
                     ->update([
@@ -464,13 +518,20 @@ class InstituicaoController extends Controller
                         'data_hora_coleta' => $request->data_hora_coleta,
                         'categoria_doacao' => $request->categoria,
                         'quantidade_doacao' => $request->quantidade_doacao,
-                        'updated_at' => now(),
+                        'updated_at' => Carbon::now(),
                     ]);
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Doação registrada com sucesso!',
-                ], 200);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Doação registrada com sucesso!',
+                    ], 200);
+                }
+                else{
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Já existe uma doação em análise para essa instituição!',
+                    ], 422);
+                }
             } else {
                 // Insere os dados se o registro não existir
                 DB::table('voluntario_has_doacao')->insert([
@@ -480,8 +541,8 @@ class InstituicaoController extends Controller
                     'data_hora_coleta' => $request->data_hora_coleta,
                     'categoria_doacao' => $request->categoria,
                     'quantidade_doacao' => $request->quantidade_doacao,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
                 ]);
 
                 return response()->json([
