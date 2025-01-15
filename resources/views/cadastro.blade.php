@@ -53,36 +53,36 @@
                                 <!-- Nome da Instituição -->
                                 <div class="mb-3">
                                     <label class="form-label">Nome da Instituição</label>
-                                    <input type="text" class="form-control" name="nome" placeholder="Nome da instituição" required>
+                                    <input type="text" class="form-control" name="nome" value="{{ old('nome') }}" placeholder="Nome da instituição" required>
                                 </div>
 
                                 <!-- CNPJ -->
                                 <div class="mb-3">
                                     <label class="form-label">CNPJ</label>
-                                    <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" required maxlength="18">
+                                    <input type="text" class="form-control" id="cnpj" name="cnpj" value="{{ old('cnpj') }}" placeholder="CNPJ" required maxlength="18">
                                 </div>
 
                                 <!-- Email -->
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" name="email" placeholder="Email" required>
+                                    <input type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="Email" required>
                                 </div>
 
                                 <!-- Senha -->
                                 <div class="mb-3">
                                     <label class="form-label">Senha</label>
-                                    <input type="password" class="form-control" name="senha" placeholder="Senha" required>
+                                    <input type="password" class="form-control" name="senha" value="{{ old('senha') }}" placeholder="Senha" required>
                                 </div>
 
                                 <!-- Telefone e CEP na mesma linha -->
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Telefone</label>
-                                        <input type="tel" class="form-control" name="telefone" placeholder="Telefone" id="telefone" required maxlength="15">
+                                        <input type="tel" class="form-control" name="telefone" value="{{ old('telefone') }}" placeholder="Telefone" id="telefone" required maxlength="15">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">CEP</label>
-                                        <input type="text" class="form-control" name="cep" placeholder="CEP" id="cep"  onblur="buscarEndereco()" maxlength="9">
+                                        <input type="text" class="form-control" name="cep" value="{{ old('cep') }}" placeholder="CEP" id="cep"  onblur="buscarEndereco()" maxlength="9">
                                     </div>
                                 </div>
                                 <!-- Botão para exibir o modal -->

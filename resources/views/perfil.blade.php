@@ -179,13 +179,13 @@
                                 <input type="hidden" name="menu" value="3">
                                 <div class="col-md-6 col-lg-4">
                                     <div class="form-label">Telefone</div>
-                                    <input type="text" class="form-control" name="telefone" value="{{ $instituicao->contato->telefone_contato ?? '' }}">
+                                    <input type="text" class="form-control" id="telefone" name="telefone" value="{{ $instituicao->contato->telefone_contato ?? '' }}" maxlength="15">
                                 </div>
                             </div>
                             <div class="row mt-4">
                                 <div class="col-md-6 col-lg-4">
                                     <div class="form-label">Whatsapp</div>
-                                    <input type="text" class="form-control" name="whatsapp" value="{{ $instituicao->contato->whatsapp_contato ?? '' }}">
+                                    <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="{{ $instituicao->contato->whatsapp_contato ?? '' }}" maxlength="15">
                                 </div>
                             </div>
                             <h3 class="card-title mt-4">Redes Sociais</h3>
@@ -421,6 +421,20 @@
     document.getElementById('change-photo').addEventListener('click', function(event) {
         event.preventDefault();  // Evita comportamento padrão do link
         document.getElementById('upload').click();  // Aciona o campo de upload
+    });
+</script>
+<script>
+    document.getElementById('telefone').addEventListener('input', function (e) {
+        let x = e.target.value.replace(/\D/g, '');
+        x = x.replace(/^(\d{2})(\d)/, '($1) $2');
+        x = x.replace(/(\d)(\d{4})$/, '$1-$2');
+        e.target.value = x;
+    });
+    document.getElementById('whatsapp').addEventListener('input', function (e) {
+        let x = e.target.value.replace(/\D/g, '');
+        x = x.replace(/^(\d{2})(\d)/, '($1) $2');
+        x = x.replace(/(\d)(\d{4})$/, '$1-$2');
+        e.target.value = x;
     });
 </script>
 <script>

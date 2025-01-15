@@ -236,7 +236,7 @@ class VoluntarioController extends Controller
                 'id_usuario',
                 'id_contato',
                 'id_endereco',
-                'cpf_voluntario'
+                'cpf_voluntario'    
             )
             ->with([
                 'usuario:id,name,email',

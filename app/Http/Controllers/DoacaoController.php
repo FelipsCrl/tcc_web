@@ -232,41 +232,49 @@ class DoacaoController extends Controller
         $user = Auth::user();
         $instituicao = Instituicao::where('id_usuario', $user->id)->first();
 
-        // Criar a doação
-        $doacao = Doacao::create([
-            'id_instituicao' => $instituicao->id_instituicao, // Assumindo que a instituição do usuário logado está disponível
-            'observacao_doacao' => $request->input('observacao'),
-            'data_hora_limite_doacao' => $request->input('data_hora_limite'),
-            'nome_doacao' => $request->input('nome'),
-            'coleta_doacao' => $request->input('coleta'),
-            'card_doacao' => '1'
-        ]);
+        $preenchido = !empty($instituicao->descricao_instituicao) &&
+                        !empty($instituicao->funcionamento_instituicao);
 
-        // Recuperar as listas de nomes de categorias e metas
-        $categoriasNomes = $request->input('categoria_nome');
-        $categoriasMetas = $request->input('categoria_meta');
+        if($preenchido){
+            // Criar a doação
+            $doacao = Doacao::create([
+                'id_instituicao' => $instituicao->id_instituicao, // Assumindo que a instituição do usuário logado está disponível
+                'observacao_doacao' => $request->input('observacao'),
+                'data_hora_limite_doacao' => $request->input('data_hora_limite'),
+                'nome_doacao' => $request->input('nome'),
+                'coleta_doacao' => $request->input('coleta'),
+                'card_doacao' => '1'
+            ]);
 
-        // Verificar se existem categorias
-        if ($categoriasNomes && $categoriasMetas) {
-            foreach ($categoriasNomes as $index => $nomeCategoria) {
-                $metaCategoria = $categoriasMetas[$index];
+            // Recuperar as listas de nomes de categorias e metas
+            $categoriasNomes = $request->input('categoria_nome');
+            $categoriasMetas = $request->input('categoria_meta');
 
-                // Verificar se a categoria já existe
-                $categoria = CategoriaDoacao::create([
-                    'descricao_categoria' => $nomeCategoria
-                ]);
+            // Verificar se existem categorias
+            if ($categoriasNomes && $categoriasMetas) {
+                foreach ($categoriasNomes as $index => $nomeCategoria) {
+                    $metaCategoria = $categoriasMetas[$index];
 
-                // Associar a doação à categoria na tabela intermediária utilizando o método "categorias()"
-                $doacao->categorias()->attach($categoria->id_categoria, [
-                    'meta_doacao_categoria' => $metaCategoria,
-                    'quantidade_doacao_categoria' => 0, // Inicia com 0
-                ]);
+                    // Verificar se a categoria já existe
+                    $categoria = CategoriaDoacao::create([
+                        'descricao_categoria' => $nomeCategoria
+                    ]);
+
+                    // Associar a doação à categoria na tabela intermediária utilizando o método "categorias()"
+                    $doacao->categorias()->attach($categoria->id_categoria, [
+                        'meta_doacao_categoria' => $metaCategoria,
+                        'quantidade_doacao_categoria' => 0, // Inicia com 0
+                    ]);
+                }
             }
-        }
 
-        // Retornar sucesso (ajustar rota de redirecionamento conforme necessário)
-        return redirect()->route('doacao.index')
-            ->with('success', 'Doação criada com sucesso!!');
+            // Retornar sucesso (ajustar rota de redirecionamento conforme necessário)
+            return redirect()->route('doacao.index')
+                ->with('success', 'Doação criada com sucesso!!');
+        }else{
+            return redirect()->route('doacao.index')
+                ->withErrors('Preencha os campos de descrição e funcionamento da instituição primeiro!!');
+        }
     }
 
     public function update(Request $request, Doacao $doacao)
@@ -416,6 +424,7 @@ class DoacaoController extends Controller
                         'id_instituicao' => $doacao->instituicao->id_instituicao ?? null,
                         'nome' => $doacao->instituicao->usuario->name ?? 'Nome não disponível',
                         'email' => $doacao->instituicao->usuario->email ?? 'Email não disponível',
+                        'profile_photo_url' => $doacao->instituicao->usuario->profile_photo_url ?? null,
                         'telefone' => $doacao->instituicao->contato->telefone_contato ?? 'Telefone não disponível',
                         'whatsapp' => $doacao->instituicao->contato->whatsapp_contato ?? 'Whatsapp não disponível',
                         'endereco' => $doacao->instituicao->endereco ?

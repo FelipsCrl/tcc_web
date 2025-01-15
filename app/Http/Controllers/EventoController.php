@@ -238,82 +238,90 @@ class EventoController extends Controller
             'meta_evento.*' => 'numeric|min:1',
         ], $messages);
 
-        $evento = null;
-        // Verifica se o checkbox de endereço foi marcado
-        if ($request->has('endereco')) {
-            $messages = [
-                'cep.required' => 'O campo cep é obrigatório.',
-                'rua.required' => 'O campo rua é obrigatório.',
-                'estado.required' => 'O campo estado é obrigatório.',
-                'numero.required' => 'O campo número é obrigatório.',
-                'bairro.required' => 'O campo bairro é obrigatório.',
-                'cidade.required' => 'O campo cidade é obrigatório.',
-                'complemento.required' => 'O campo complemento é obrigatório.',
-                'complemento.max' => 'O complemento pode ter no máximo 50 caracteres.',
-                'estado.required' => 'O campo estado é obrigatório.',
-            ];
-            $request->validate([
-                'rua' => 'nullable|string|max:50',
-                'cep' => 'nullable|string|max:9',
-                'numero' => 'nullable|string',
-                'bairro' => 'nullable|string|max:50',
-                'cidade' => 'nullable|string|max:50',
-                'estado' => 'nullable|string|max:2',
-                'complemento' => 'nullable|string|max:50',
-            ],$messages);
+        $preenchido = !empty($instituicao->descricao_instituicao) &&
+                        !empty($instituicao->funcionamento_instituicao);
 
-            // Cria o endereço se o checkbox for marcado
-            $endereco = Endereco::create([
-                'cep_endereco'=> $request->input('cep'),
-                'complemento_endereco'=> $request->input('complemento'),
-                'cidade_endereco'=> $request->input('cidade'),
-                'logradouro_endereco'=> $request->input('rua'),
-                'estado_endereco'=> $request->input('estado'),
-                'bairro_endereco'=> $request->input('bairro'),
-                'numero_endereco'=> $request->input('numero'),
-            ]);
+        if($preenchido){
+            $evento = null;
+            // Verifica se o checkbox de endereço foi marcado
+            if ($request->has('endereco')) {
+                $messages = [
+                    'cep.required' => 'O campo cep é obrigatório.',
+                    'rua.required' => 'O campo rua é obrigatório.',
+                    'estado.required' => 'O campo estado é obrigatório.',
+                    'numero.required' => 'O campo número é obrigatório.',
+                    'bairro.required' => 'O campo bairro é obrigatório.',
+                    'cidade.required' => 'O campo cidade é obrigatório.',
+                    'complemento.required' => 'O campo complemento é obrigatório.',
+                    'complemento.max' => 'O complemento pode ter no máximo 50 caracteres.',
+                    'estado.required' => 'O campo estado é obrigatório.',
+                ];
+                $request->validate([
+                    'rua' => 'nullable|string|max:50',
+                    'cep' => 'nullable|string|max:9',
+                    'numero' => 'nullable|string',
+                    'bairro' => 'nullable|string|max:50',
+                    'cidade' => 'nullable|string|max:50',
+                    'estado' => 'nullable|string|max:2',
+                    'complemento' => 'nullable|string|max:50',
+                ],$messages);
 
-            // Adiciona o id_endereco ao evento
-            $evento = Evento::create([
-                'nome_evento' => $request->input('nome'),
-                'descricao_evento' => $request->input('descricao'),
-                'data_hora_evento' => $request->input('data_hora_evento'),
-                'data_hora_limite_evento' => $request->input('data_hora_limite'),
-                'id_instituicao' => $instituicao->id_instituicao,
-                'id_endereco' => $endereco->id_endereco, // Associa o endereço ao evento
-            ]);
-        } else {
-            // Cria o evento sem o endereço
-            $evento = Evento::create([
-                'nome_evento' => $request->input('nome'),
-                'descricao_evento' => $request->input('descricao'),
-                'data_hora_evento' => $request->input('data_hora_evento'),
-                'data_hora_limite_evento' => $request->input('data_hora_limite'),
-                'id_instituicao' => $instituicao->id_instituicao,
-            ]);
-        }
+                // Cria o endereço se o checkbox for marcado
+                $endereco = Endereco::create([
+                    'cep_endereco'=> $request->input('cep'),
+                    'complemento_endereco'=> $request->input('complemento'),
+                    'cidade_endereco'=> $request->input('cidade'),
+                    'logradouro_endereco'=> $request->input('rua'),
+                    'estado_endereco'=> $request->input('estado'),
+                    'bairro_endereco'=> $request->input('bairro'),
+                    'numero_endereco'=> $request->input('numero'),
+                ]);
 
-        $habilidadesNomes = $request->input('habilidade_nome');
-        $habilidadesMetas = $request->input('meta_evento');
-
-        // Verificar se existem habilidades
-        if ($habilidadesNomes && $habilidadesMetas) {
-            foreach ($habilidadesNomes as $index => $nomeHabilidade) {
-                $metaHabilidade = $habilidadesMetas[$index];
-
-                // Verificar se a habilidade já existe
-                $habilidade = Habilidade::where('descricao_habilidade', $nomeHabilidade)->first();
-
-                // Associar o evento à habilidade na tabela intermediária utilizando o método "habilidades()"
-                $evento->habilidades()->attach($habilidade->id_habilidade, [
-                    'meta_evento' => $metaHabilidade,
-                    'quantidade_voluntario' => 0, // Inicia com 0
+                // Adiciona o id_endereco ao evento
+                $evento = Evento::create([
+                    'nome_evento' => $request->input('nome'),
+                    'descricao_evento' => $request->input('descricao'),
+                    'data_hora_evento' => $request->input('data_hora_evento'),
+                    'data_hora_limite_evento' => $request->input('data_hora_limite'),
+                    'id_instituicao' => $instituicao->id_instituicao,
+                    'id_endereco' => $endereco->id_endereco, // Associa o endereço ao evento
+                ]);
+            } else {
+                // Cria o evento sem o endereço
+                $evento = Evento::create([
+                    'nome_evento' => $request->input('nome'),
+                    'descricao_evento' => $request->input('descricao'),
+                    'data_hora_evento' => $request->input('data_hora_evento'),
+                    'data_hora_limite_evento' => $request->input('data_hora_limite'),
+                    'id_instituicao' => $instituicao->id_instituicao,
                 ]);
             }
-        }
 
-        return redirect()->route('evento.index')
-            ->with('success', 'Evento criado com sucesso!');
+            $habilidadesNomes = $request->input('habilidade_nome');
+            $habilidadesMetas = $request->input('meta_evento');
+
+            // Verificar se existem habilidades
+            if ($habilidadesNomes && $habilidadesMetas) {
+                foreach ($habilidadesNomes as $index => $nomeHabilidade) {
+                    $metaHabilidade = $habilidadesMetas[$index];
+
+                    // Verificar se a habilidade já existe
+                    $habilidade = Habilidade::where('descricao_habilidade', $nomeHabilidade)->first();
+
+                    // Associar o evento à habilidade na tabela intermediária utilizando o método "habilidades()"
+                    $evento->habilidades()->attach($habilidade->id_habilidade, [
+                        'meta_evento' => $metaHabilidade,
+                        'quantidade_voluntario' => 0, // Inicia com 0
+                    ]);
+                }
+            }
+
+            return redirect()->route('evento.index')
+                ->with('success', 'Evento criado com sucesso!');
+        }else{
+            return redirect()->route('evento.index')
+                ->withErrors('Preencha os campos de descrição e funcionamento da instituição primeiro!!');
+        }
     }
 
     public function update(Request $request, Evento $evento)
@@ -549,6 +557,7 @@ class EventoController extends Controller
                     'id_instituicao' => $evento->instituicao->id_instituicao ?? null,
                     'nome' => $evento->instituicao->usuario->name ?? 'Nome não disponível',
                     'email' => $evento->instituicao->usuario->email ?? 'Email não disponível',
+                    'profile_photo_url' => $evento->instituicao->usuario->profile_photo_url ?? null,
                     'telefone' => $evento->instituicao->contato->telefone_contato ?? 'Telefone não disponível',
                     'whatsapp' => $evento->instituicao->contato->whatsapp_contato ?? 'Whatsapp não disponível',
                     'endereco' => $evento->instituicao->endereco ?

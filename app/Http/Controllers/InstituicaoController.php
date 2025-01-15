@@ -156,8 +156,10 @@ class InstituicaoController extends Controller
             'complemento.max' => 'O complemento pode ter no máximo 50 caracteres.',
             'estado.required' => 'O campo estado é obrigatório.',
             'telefone.required' => 'O campo telefone é obrigatório.',
-            'telefone.min' => 'O telefone deve ter 16 caracteres.',
-            'whatsapp.min' => 'O telefone deve ter 16 caracteres.',
+            'telefone.min' => 'O telefone deve ter 15 caracteres.',
+            'telefone.max' => 'O telefone pode ter no máximo 15 caracteres.',
+            'whatsapp.min' => 'O telefone deve ter 15 caracteres.',
+            'whatsapp.max' => 'O telefone pode ter no máximo 15 caracteres.',
             'facebook.max' => 'O link do perfil do facebook pode ter no máximo 60 caracteres.',
             'instagram.max' => 'O link do perfil do instagram pode ter no máximo 60 caracteres.',
             'site.max' => 'O link do site institucional pode ter no máximo 60 caracteres.',
@@ -365,13 +367,14 @@ class InstituicaoController extends Controller
             return [
                 'id_instituicao' => $instituicao->id_instituicao ?? null,
                 'descricao' => $instituicao->descricao_instituicao ?? null,
-                'nome' => $instituicao->usuario->name ?? 'Nome não disponível',
-                'email' => $instituicao->usuario->email ?? 'Email não disponível',
-                'telefone' => $instituicao->contato->telefone_contato ?? 'Telefone não disponível',
-                'whatsapp' => $instituicao->contato->whatsapp_contato ?? 'Whatsapp não disponível',
-                'facebook' => $instituicao->contato->facebook_contato ?? 'Facebook não disponível',
-                'instagram' => $instituicao->contato->instagram_contato ?? 'Instagram não disponível',
-                'site' => $instituicao->contato->site_contato ?? 'Site não disponível',
+                'profile_photo_url' => $instituicao->usuario->profile_photo_url ?? null,
+                'nome' => $instituicao->usuario->name ?? null,
+                'email' => $instituicao->usuario->email ?? null,
+                'telefone' => $instituicao->contato->telefone_contato ?? null,
+                'whatsapp' => $instituicao->contato->whatsapp_contato ?? null,
+                'facebook' => $instituicao->contato->facebook_contato ?? null,
+                'instagram' => $instituicao->contato->instagram_contato ?? null,
+                'site' => $instituicao->contato->site_contato ?? null,
                 'endereco' => $instituicao->endereco ?
                     "{$instituicao->endereco->cidade_endereco}, {$instituicao->endereco->bairro_endereco}, {$instituicao->endereco->logradouro_endereco}, {$instituicao->endereco->numero_endereco}, {$instituicao->endereco->complemento_endereco}, {$instituicao->endereco->cep_endereco}, {$instituicao->endereco->estado_endereco}" :
                     'Mesmo endereço da instituição',
@@ -581,15 +584,22 @@ class InstituicaoController extends Controller
         }
 
         // Validação dos dígitos verificadores
-        for ($t = 12; $t < 14; $t++) {
-            $d = 0;
-            $c = 0;
-            for ($p = $t - 7, $i = 0; $i < $t; $i++, $p--) {
-                $d += $cnpj[$i] * ($p > 1 ? $p : 9);
-                $c++;
+        $pesos = [
+            [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2], // Pesos para o primeiro dígito
+            [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] // Pesos para o segundo dígito
+        ];
+
+        for ($t = 0; $t < 2; $t++) {
+            $soma = 0;
+
+            for ($i = 0; $i < count($pesos[$t]); $i++) {
+                $soma += $cnpj[$i] * $pesos[$t][$i];
             }
-            $d = ((10 * $d) % 11) % 10;
-            if ($cnpj[$c] != $d) {
+
+            $resto = $soma % 11;
+            $digito = ($resto < 2) ? 0 : 11 - $resto;
+
+            if ($cnpj[12 + $t] != $digito) {
                 return false;
             }
         }
