@@ -22,14 +22,14 @@ class SolicitacaoController extends Controller
             ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
             ->where('d.id_instituicao', $instituicao->id_instituicao)
             ->where('d.card_doacao', 0)
-            ->whereBetween('vd.created_at', [Carbon::today(), Carbon::tomorrow()])
+            ->whereBetween('vd.updated_at', [Carbon::today(), Carbon::tomorrow()])
             ->select(DB::raw('count(*) as total'))
 
             ->union(
                 DB::table('instituicao_has_voluntario as iv')
                     ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
-                    ->whereBetween('iv.created_at', [Carbon::today(), Carbon::tomorrow()])
+                    ->whereBetween('iv.updated_at', [Carbon::today(), Carbon::tomorrow()])
                     ->select(DB::raw('count(*) as total'))
             )
             ->sum('total');
@@ -37,14 +37,14 @@ class SolicitacaoController extends Controller
             ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
             ->where('d.id_instituicao', $instituicao->id_instituicao)
             ->where('d.card_doacao', 0)
-            ->whereMonth('vd.created_at', Carbon::now()->month)
+            ->whereMonth('vd.updated_at', Carbon::now()->month)
             ->select(DB::raw('count(*) as total'))
 
             ->union(
                 DB::table('instituicao_has_voluntario as iv')
                     ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
-                    ->whereMonth('iv.created_at', Carbon::now()->month)
+                    ->whereMonth('iv.updated_at', Carbon::now()->month)
                     ->select(DB::raw('count(*) as total'))
             )
             ->sum('total');
@@ -55,15 +55,17 @@ class SolicitacaoController extends Controller
         ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
         ->where('d.id_instituicao', $instituicao->id_instituicao)
         ->where('d.card_doacao', 0)
-        ->whereMonth('vd.created_at', Carbon::now()->month)
-        ->select(DB::raw('DATE(vd.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
+        ->whereMonth('vd.updated_at', Carbon::now()->month)
+        ->whereYear('vd.updated_at', Carbon::now()->year)
+        ->select(DB::raw('DATE(vd.updated_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
         ->groupBy('date')
         ->unionAll( // Substituir UNION por UNION ALL
             DB::table('instituicao_has_voluntario as iv')
                 ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                 ->where('iv.id_instituicao', $instituicao->id_instituicao)
-                ->whereMonth('iv.created_at', Carbon::now()->month)
-                ->select(DB::raw('DATE(iv.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
+                ->whereMonth('iv.updated_at', Carbon::now()->month)
+                ->whereYear('iv.updated_at', Carbon::now()->year)
+                ->select(DB::raw('DATE(iv.updated_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
                 ->groupBy('date')
         )
         ->orderBy('date', 'asc')
@@ -157,14 +159,14 @@ class SolicitacaoController extends Controller
         ->where('d.id_instituicao', $instituicao->id_instituicao)
         ->where('d.card_doacao', 0)
         ->where('vd.situacao_solicitacao_doacao', '=', -1) // Recusadas
-        ->whereMonth('vd.created_at', Carbon::now()->month)
+        ->whereMonth('vd.updated_at', Carbon::now()->month)
         ->select(DB::raw('COUNT(*) as quantidade'))
         ->union(
             DB::table('instituicao_has_voluntario as iv')
                 ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                 ->where('iv.id_instituicao', $instituicao->id_instituicao)
                 ->where('iv.situacao_solicitacao_voluntario', '=', -1) // Recusadas
-                ->whereMonth('iv.created_at', Carbon::now()->month)
+                ->whereMonth('iv.updated_at', Carbon::now()->month)
                 ->select(DB::raw('COUNT(*) as quantidade'))
         )
         ->get()
@@ -174,9 +176,9 @@ class SolicitacaoController extends Controller
         $solicitacoes = DB::table('instituicao_has_voluntario as iv')
         ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
         ->where('iv.id_instituicao', $instituicao->id_instituicao)
-        ->whereYear('iv.created_at', Carbon::now()->year) // Filtra pelo ano atual
+        ->whereMonth('iv.updated_at', Carbon::now()->month)
         ->select(
-            DB::raw('MONTH(iv.created_at) as month'),
+            DB::raw('MONTH(iv.updated_at) as month'),
             DB::raw('COUNT(iv.id_voluntario) as total_solicitacoes'),
             DB::raw('"Voluntário" as tipo')
         )
@@ -186,9 +188,9 @@ class SolicitacaoController extends Controller
                 ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
                 ->where('d.id_instituicao', $instituicao->id_instituicao)
                 ->where('d.card_doacao', 0)
-                ->whereMonth('vd.created_at', Carbon::now()->month)
+                ->whereMonth('vd.updated_at', Carbon::now()->month)
                 ->select(
-                    DB::raw('MONTH(vd.created_at) as month'),
+                    DB::raw('MONTH(vd.updated_at) as month'),
                     DB::raw('COUNT(*) as total_solicitacoes'),
                     DB::raw('"Doação" as tipo')
                 )
@@ -216,16 +218,16 @@ class SolicitacaoController extends Controller
             ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
             ->where('d.card_doacao', 0)
             ->where('d.id_instituicao', $instituicao->id_instituicao)
-            ->whereMonth('vd.created_at', Carbon::now()->month)
+            ->whereMonth('vd.updated_at', Carbon::now()->month)
             ->count();
         $tipoSolicitaVoluntario =  DB::table('instituicao_has_voluntario as iv')
             ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
             ->where('iv.id_instituicao', $instituicao->id_instituicao)
-            ->whereMonth('iv.created_at', Carbon::now()->month)
+            ->whereMonth('iv.updated_at', Carbon::now()->month)
             ->count();
 
         $searchTermVoluntario = $request->input('searchVoluntario', '');
-        $limitVoluntario = $request->input('limitVoluntario', 5);
+        $limitVoluntario = $request->input('limitVoluntario');
         $queryVoluntario = DB::table('instituicao_has_voluntario as iv')
             ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
             ->join('users as u', 'v.id_usuario', '=', 'u.id')
@@ -250,11 +252,11 @@ class SolicitacaoController extends Controller
                 $solicitacaoVoluntario = $queryVoluntario->take($limitVoluntario)->get();
             } else {
                 // Caso contrário, usa paginação normalmente com 5 itens por página
-                $solicitacaoVoluntario = $queryVoluntario->paginate($limitVoluntario, ['*'], 'solicitacoesVoluntarioPage');
+                $solicitacaoVoluntario = $queryVoluntario->paginate(5, ['*'], 'solicitacoesVoluntarioPage');
             }
 
         $searchTermDoacao = $request->input('searchDoacao', '');
-        $limitDoacao = $request->input('limitDoacao', 5);
+        $limitDoacao = $request->input('limitDoacao');
         $queryDoacao =  DB::table('voluntario_has_doacao as vd')
             ->join('doacao as d', 'vd.id_doacao', '=', 'd.id_doacao')
             ->join('voluntario as v', 'vd.id_voluntario', '=', 'v.id_voluntario')
@@ -264,6 +266,8 @@ class SolicitacaoController extends Controller
             ->where('d.id_instituicao', $instituicao->id_instituicao)
             ->where('vd.situacao_solicitacao_doacao', '=', 0) // Em espera
             ->where('d.card_doacao', 0)
+            ->whereMonth('vd.updated_at', Carbon::now()->month)
+            ->whereYear('vd.updated_at', Carbon::now()->year)
             ->where(function ($query) use ($searchTermDoacao) {
                 $query->where('vd.id_doacao', 'like', "%$searchTermDoacao%")
                     ->orWhere('vd.categoria_doacao', 'like', "%$searchTermDoacao%")
@@ -282,7 +286,7 @@ class SolicitacaoController extends Controller
                 $solicitacaoDoacao = $queryDoacao->take($limitDoacao)->get();
             } else {
                 // Caso contrário, usa paginação normalmente com 5 itens por página
-                $solicitacaoDoacao = $queryDoacao->paginate($limitDoacao, ['*'], 'solicitacoesDoacaoPage');
+                $solicitacaoDoacao = $queryDoacao->paginate(5, ['*'], 'solicitacoesDoacaoPage');
             }
 
         return view('solicitacao',compact(

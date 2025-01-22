@@ -63,6 +63,7 @@ class VoluntarioController extends Controller
             ->join('evento as e', 've.id_evento', '=', 'e.id_evento')
             ->where('e.id_instituicao', $instituicao->id_instituicao)
             ->whereMonth('ve.updated_at', Carbon::now()->month)
+            ->whereYear('ve.updated_at', Carbon::now()->year)
             ->select(DB::raw('DATE(ve.updated_at) as date'), DB::raw('COUNT(*) as total_voluntarios'))
             ->groupBy('date')
 
@@ -72,6 +73,7 @@ class VoluntarioController extends Controller
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
                     ->where('iv.situacao_solicitacao_voluntario', '=', 1)
                     ->whereMonth('iv.updated_at', Carbon::now()->month)
+                    ->whereYear('iv.updated_at', Carbon::now()->year)
                     ->select(DB::raw('DATE(iv.updated_at) as date'), DB::raw('COUNT(*) as total_voluntarios'))
                     ->groupBy('date')
             )
@@ -151,7 +153,9 @@ class VoluntarioController extends Controller
             ->join('voluntario as v', 've.id_voluntario', '=', 'v.id_voluntario')
             ->join('evento as e', 've.id_evento', '=', 'e.id_evento')
             ->where('e.id_instituicao', $instituicao->id_instituicao)
-            ->whereMonth('ve.updated_at', Carbon::today())
+            ->whereDay('ve.updated_at', Carbon::today()->day)
+            ->whereMonth('ve.updated_at', Carbon::today()->month)
+            ->whereYear('ve.updated_at', Carbon::today()->year)
             ->select(DB::raw('count(*) as total'))
 
             ->union(
@@ -159,7 +163,9 @@ class VoluntarioController extends Controller
                     ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
                     ->where('iv.situacao_solicitacao_voluntario', '=', 1)
-                    ->whereMonth('iv.updated_at', Carbon::today())
+                    ->whereDay('iv.updated_at', Carbon::today()->day)
+                    ->whereMonth('iv.updated_at', Carbon::today()->month)
+                    ->whereYear('iv.updated_at', Carbon::today()->year)
                     ->select(DB::raw('count(*) as total'))
             )
             ->sum('total');
@@ -236,7 +242,7 @@ class VoluntarioController extends Controller
                 'id_usuario',
                 'id_contato',
                 'id_endereco',
-                'cpf_voluntario'    
+                'cpf_voluntario'
             )
             ->with([
                 'usuario:id,name,email',

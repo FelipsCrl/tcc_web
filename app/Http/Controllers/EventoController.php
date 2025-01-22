@@ -35,6 +35,7 @@ class EventoController extends Controller
         ->join('evento', 've.id_evento', '=', 'evento.id_evento')
         ->where('evento.id_instituicao', $instituicao->id_instituicao)
         ->whereMonth('ve.updated_at', Carbon::now()->month)
+        ->whereYear('ve.updated_at', Carbon::now()->year)
         ->select(DB::raw('DATE(ve.updated_at) as date'), DB::raw('COUNT(*) as total_ajudas'))
         ->groupBy('date')
         ->orderBy('date', 'asc')

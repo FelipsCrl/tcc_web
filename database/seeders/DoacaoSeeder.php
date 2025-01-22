@@ -30,8 +30,8 @@ class DoacaoSeeder extends Seeder
         Doacao::create([
             'id_instituicao' => 1,
             'observacao_doacao' => 'Doação de roupas e alimentos',
-            'data_hora_limite_doacao' => '2024-12-31 23:59:59',
-            'nome_doacao' => 'Campanha de Natal',
+            'data_hora_limite_doacao' => '2025-04-03 23:59:59',
+            'nome_doacao' => 'Campanha de Páscoa',
             'coleta_doacao' => '1',
             'card_doacao' => '1'
         ]);
@@ -40,7 +40,7 @@ class DoacaoSeeder extends Seeder
         Doacao::create([
             'id_instituicao' => 1,
             'observacao_doacao' => 'Doação de livros e materiais escolares',
-            'data_hora_limite_doacao' => '2024-11-30 23:59:59',
+            'data_hora_limite_doacao' => '2025-02-27 23:59:59',
             'nome_doacao' => 'Volta às Aulas',
             'coleta_doacao' => '0',
             'card_doacao' => '1'
@@ -82,6 +82,13 @@ class DoacaoSeeder extends Seeder
             'quantidade_doacao' => 3
         ]);
 
-        Doacao::factory()->count(30)->create();
+        // Gera 12 doações (um para cada mês)
+        /*foreach (range(1, 12) as $month) {
+            Doacao::factory()
+                ->count(5) // 5 doações por mês
+                ->create([
+                    'data_hora_limite_doacao' => now()->startOfYear()->addMonths($month - 1)->addDays(rand(1, 28)),
+                ]);
+        }*/
     }
 }

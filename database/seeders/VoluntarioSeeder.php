@@ -30,6 +30,6 @@ class VoluntarioSeeder extends Seeder
             ],
         ]);
 
-        Voluntario::factory()->count(30)->create();
+        //Voluntario::factory()->count(30)->create();
     }
 }

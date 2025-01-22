@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Instituicao;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -37,10 +38,12 @@ class InstituicaoSeeder extends Seeder
                 'id_instituicao' => 1, // Assumindo que o ID 1 existe na tabela instituicao
                 'id_voluntario' => 1, // Assumindo que o ID 1 existe na tabela voluntario
                 'situacao_solicitacao_voluntario' => 0,
-                'habilidade_voluntario' => 'Música'
+                'habilidade_voluntario' => 'Música',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
         ]);
 
-        Instituicao::factory()->count(30)->create();
+        //Instituicao::factory()->count(30)->create();
     }
 }

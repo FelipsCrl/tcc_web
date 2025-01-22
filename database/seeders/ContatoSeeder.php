@@ -28,6 +28,6 @@ class ContatoSeeder extends Seeder
             'whatsapp_contato' => '(21) 92345-6789',
         ]);
 
-        Contato::factory()->count(20)->create();
+        //Contato::factory()->count(20)->create();
     }
 }

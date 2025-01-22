@@ -55,6 +55,6 @@ class CategoriaDoacaoSeeder extends Seeder
             // Adicione mais entradas conforme necessário
         ]);
 
-        CategoriaDoacao::factory()->count(30)->create();
+        //CategoriaDoacao::factory()->count(30)->create();
     }
 }

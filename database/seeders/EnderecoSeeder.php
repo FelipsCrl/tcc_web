@@ -45,6 +45,6 @@ class EnderecoSeeder extends Seeder
             'numero_endereco' => '300'
         ]);
 
-        Endereco::factory()->count(20)->create();
+        //Endereco::factory()->count(20)->create();
     }
 }

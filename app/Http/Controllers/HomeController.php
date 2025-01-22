@@ -79,6 +79,7 @@ class HomeController extends Controller
             ->join('evento as e', 've.id_evento', '=', 'e.id_evento')
             ->where('e.id_instituicao', $instituicao->id_instituicao)
             ->whereMonth('ve.updated_at', Carbon::now()->month)
+            ->whereYear('ve.updated_at', Carbon::now()->year)
             ->select(DB::raw('DATE(ve.updated_at) as date'), DB::raw('COUNT(*) as total_voluntarios'))
             ->groupBy('date')
 
@@ -88,6 +89,7 @@ class HomeController extends Controller
                     ->where('iv.id_instituicao', $instituicao->id_instituicao)
                     ->where('iv.situacao_solicitacao_voluntario', '=', 1)
                     ->whereMonth('iv.updated_at', Carbon::now()->month)
+                    ->whereYear('iv.updated_at', Carbon::now()->year)
                     ->select(DB::raw('DATE(iv.updated_at) as date'), DB::raw('COUNT(*) as total_voluntarios'))
                     ->groupBy('date')
             )
@@ -108,6 +110,7 @@ class HomeController extends Controller
         ->where('d.id_instituicao', $instituicao->id_instituicao)
         ->where('d.card_doacao', 0)
         ->whereMonth('vd.created_at', Carbon::now()->month)
+        ->whereYear('vd.created_at', Carbon::now()->year)
         ->select(DB::raw('DATE(vd.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
         ->groupBy('date')
         ->unionAll( // Substituir UNION por UNION ALL
@@ -115,6 +118,7 @@ class HomeController extends Controller
                 ->join('voluntario as v', 'iv.id_voluntario', '=', 'v.id_voluntario')
                 ->where('iv.id_instituicao', $instituicao->id_instituicao)
                 ->whereMonth('iv.created_at', Carbon::now()->month)
+                ->whereYear('iv.created_at', Carbon::now()->year)
                 ->select(DB::raw('DATE(iv.created_at) as date'), DB::raw('COUNT(*) as total_solicitacoes'))
                 ->groupBy('date')
         )

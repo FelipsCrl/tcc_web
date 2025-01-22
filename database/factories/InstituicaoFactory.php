@@ -52,10 +52,18 @@ class InstituicaoFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (Instituicao $instituicao) {
-            // Adiciona um relacionamento com voluntários existentes
-            $voluntarios = Voluntario::inRandomOrder()->take(rand(1, 20))->pluck('id_voluntario');
+            // Adiciona um relacionamento com vários voluntários
+            $voluntarios = Voluntario::where('id_voluntario', '!=', 1) // Exclui o voluntário com id 1
+                            ->inRandomOrder()
+                            ->take(rand(10, 50)) // Aumenta o número de voluntários por evento
+                            ->pluck('id_voluntario')
+                            ->unique();
+
 
             foreach ($voluntarios as $id_voluntario) {
+                $createdAt = $this->faker->dateTimeBetween('-1 year', 'now');
+                $updatedAt = $this->faker->dateTimeBetween($createdAt, 'now');
+
                 $instituicao->voluntarios()->attach($id_voluntario, [
                     'situacao_solicitacao_voluntario' => $this->faker->randomElement([-1, 0, 1]),
                     'habilidade_voluntario' => $this->faker->randomElement([
@@ -66,14 +74,16 @@ class InstituicaoFactory extends Factory
                         'Música',
                         'Dança',
                         'Administração',
-                        'Bem-estar Animal',
+                        'Animais',
                         'Marketing',
                         'TI',
                         'Pesquisa',
                         'Artes Marciais',
                         'Enfermagem',
-                        'Medicina'
-                    ])
+                        'Medicina',
+                    ]),
+                    'created_at' => $createdAt,
+                    'updated_at' => $updatedAt
                 ]);
             }
 
